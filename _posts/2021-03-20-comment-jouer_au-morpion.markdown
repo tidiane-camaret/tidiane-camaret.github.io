@@ -9,6 +9,7 @@ Je me suis toujours demandé comment les intelligences artificielles fonctionnai
 En fait, dans la plupart des jeux, le comportement des IA est codé par une simple liste de conditions : à l’avance, les concepteurs déterminent une liste d’états du jeu, et, pour chacun de ces états, un ensemble d’actions à exécuter. Dans un jeu simple comme Pacman, ça pourrait par exemple ressembler à ça : 
 
 IMAGE 1
+![img1](/assets/images/Sc2-2.gif)
 
 Cette manière de programmer l’IA, appelée Finite State Machine, est une méthode simple permettant de créer des agents s’adaptant à leur environnement. Essayons par exemple d’écrire le programme pour l’IA d’un jeu de morpion :
 
@@ -19,7 +20,7 @@ C’est une bonne méthode pour coder des programmes s’adaptant à leur enviro
 
 Une manière intéressante de faire serait de faire en sorte que le programme construise, au fur et à mesure de ses parties, sa propre stratégie. En soi, un peu comme ce que font les humain : nous n’avons pas besoin de connaitre à l’avance et en détail les stratégies gagnantes d’un jeu. Nous jouons, et petit à petit, nous apprenons quelles actions sont les plus probables, à chaque étape du jeu, de nous mener à la victoire.
 
--- Les bases du fonctionnement
+# Les bases du fonctionnement
 
 Nous allons essayer de créer un programme apprenant à jouer au morpion par lui même. Essayons d’abord de décrire à quoi pourrait ressembler ce programme.
 
