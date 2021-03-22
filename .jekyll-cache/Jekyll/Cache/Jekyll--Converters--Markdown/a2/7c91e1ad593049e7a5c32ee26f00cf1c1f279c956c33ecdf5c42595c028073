@@ -1,0 +1,142 @@
+I"t.<p>Je me suis toujours demandé comment les intelligences artificielles fonctionnaient dans les jeux vidéos. Comment les ennemis d’un jeu savent comment attaquer, éviter, fuir le joueur selon le contexte ?</p>
+
+<p>En fait, dans la plupart des jeux, le comportement des IA est codé par une simple liste de conditions : à l’avance, les concepteurs déterminent une liste d’<strong>états</strong> du jeu, et, pour chacun de ces états, un ensemble d’<strong>actions</strong> à exécuter. Dans un jeu simple comme Pacman, ça pourrait par exemple ressembler à ça :</p>
+
+<p><img src="/assets/images/im1.gif" alt="img1" />
+<em>Deux états, deux actions.</em></p>
+
+<p>Cette manière de programmer l’IA, appelée <strong>Finite State Machine</strong>, est une méthode simple permettant de créer des agents s’adaptant à leur environnement. Essayons par exemple d’écrire le programme pour l’IA d’un jeu de morpion :</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Etat</th>
+      <th style="text-align: center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">La case centrale est libre</td>
+      <td style="text-align: center">Jouer dans la case centrale</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Une case latérale est libre</td>
+      <td style="text-align: center">Jouer dans la case latérale</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">L’adversaire a deux pions alignés</td>
+      <td style="text-align: center">Le bloquer</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">J’ai deux pions alignés</td>
+      <td style="text-align: center">Compléter la ligne</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>A chaque tour de la partie, notre programme observera donc l’<strong>état</strong> du jeu et effectuera l’<strong>action</strong> correspondante.</p>
+
+<p>C’est une bonne méthode pour coder des programmes s’adaptant à leur environnement. Par contre, elle nécessite de <strong>réfléchir en amont à cette liste d’états et d’actions</strong>. Cela implique d’avoir déjà une bonne connaissance des règles et des stratégies gagnantes du jeu. Et oui, si notre programme se retrouve par malheur dans un cas que l’on avait pas prévu en amont, il sera tout simplement bloqué.</p>
+
+<p>Une manière intéressante de faire serait de faire en sorte que <strong>le programme construise, au fur et à mesure de ses parties, sa propre stratégie</strong>. En soi, un peu comme ce que font les humain : nous n’avons pas besoin de connaitre à l’avance et en détail les stratégies gagnantes d’un jeu. Nous jouons, et petit à petit, nous apprenons quelles actions sont les plus probables, à chaque étape du jeu, de nous mener à la victoire.</p>
+
+<h1 id="les-bases-du-fonctionnement">Les bases du fonctionnement</h1>
+
+<p>Nous allons essayer de créer un programme apprenant à jouer au morpion par lui même. Essayons d’abord de décrire à quoi pourrait ressembler ce programme.</p>
+
+<p>Lors d’une partie, à chaque étape, le plateau du jeu va être constitué d’une certaine disposition de ronds et de croix, par exemple, celle là :</p>
+
+<p><img src="/assets/images/im2.png" alt="drawing" width="200" /></p>
+
+<p>ou celle là : 
+<img src="/assets/images/im3.png" alt="drawing" width="200" /></p>
+
+<p>En tout, le joueur peut se retrouver face à <strong>5478</strong> dispositions, ou <strong>états</strong> différents.</p>
+
+<p><img src="/assets/images/im4.gif" alt="img4" /></p>
+
+<p>A chaque tour, le programme se retrouvera face à un de ces états, et devra accomplir une <strong>action</strong>, c’est-à-dire jouer quelque part. Le plateau du jeu étant constitué de 9 cases, il y a au plus 9 actions possibles, qu’on peut labelliser de A à I :</p>
+
+<p><img src="/assets/images/im5.png" alt="img5" /></p>
+
+<p>On va donner à notre programme un but à atteindre : Maximiser un nombre de points au cours de ses parties. Pour chaque partie, on lui attribue <strong>1 point lorsqu’il gagne</strong>, et <strong>-1 point lorsqu’il perd</strong>.</p>
+
+<p>Illustrons ce mécanisme par un exemple, dans un état au hasard. Ici, le programme peut jouer en B, F et H.</p>
+
+<p><img src="/assets/images/im6.gif" alt="img6" />
+<em>Si le programme joue en B ou F, il gagnera la partie : +1 point pour lui. Si il joue en H, il est très probable que l’adversaire joue en F au prochain coup : -1 point.</em></p>
+
+<p>Imaginons un instant qu’on ait au préalable réussi à évaluer les points que rapportent chacune des 9 actions, dans les 5478 états.</p>
+
+<p><img src="/assets/images/im7.gif" alt="img7" />
+<em>L’ensemble des points rapportés par les 9 actions possibles, pour chacun des 5478 états.</em></p>
+
+<p>Si on arrive à évaluer parfaitement combien de point rapportent chaque action dans chaque état, on peut simplement demander au programme de chercher, à chaque fois qu’il rencontre un état, l’action qui lui rapportera le <strong>maximum</strong> de points, et accomplir cette action :</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">Action</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">=</span> <span class="n">argmax</span><span class="p">(</span> <span class="no">Table</span><span class="p">[</span><span class="no">Etat</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="p">)</span></code></pre></figure>
+
+<p><img src="/assets/images/im8.gif" alt="img8" />
+<em>Le programme effectue l’action lui rapportant le plus de points probables, selon les valeurs de la table.</em></p>
+
+<h1 id="apprendre-en-se-trompant">Apprendre en se trompant</h1>
+
+<p>Mais alors, comment évaluer à l’avant les points que rapportent chaque action, pour chaque état ? On peut tout simplement <strong>laisser le programme jouer au hasard</strong>, et observer par lui-même les points que lui rapporte chaque action qu’il fait. Au fur et à mesure des ses parties, il gagnera de l’expérience et adaptera son comportement.</p>
+
+<p>Notons R la récompense obtenue après avoir réalisé une action à un état donné. La nouvelle valeur associée à l’état et à l’action en cours sera :</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">Table</span><span class="p">[</span> <span class="no">Etat</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="no">Action</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="no">R</span></code></pre></figure>
+
+<p><img src="/assets/images/im9.gif" alt="img9" />
+<em>Lorsqu’on reçoit une récompense après une action, on met à jour la valeur correspondante de la table.</em></p>
+
+<p>On remarque tout de même un problème avec notre fonctionnement : <strong>toutes les actions du jeu ne rapportent pas de point immédiatement</strong>. En effet, au morpion, une partie dure entre 5 et 9 coups, et seule la dernière action rapporte ou fait perdre un point.</p>
+
+<p>En fait, avant chaque action, le programme prend en compte la récompense qu’il aura immédiatement, mais pas celles des tours suivants : il n’a pas de « vision à long terme ». C’est pourtant une capacité fondamentale lorsqu’on veut construire une stratégie sur plusieurs tours.</p>
+
+<h1 id="pas-de-stratégie-sans-vision-à-long-terme">Pas de stratégie sans vision à long terme</h1>
+
+<p>Pour arranger ça, on va faire ne sorte que le programme prenne en compte les récompenses probables qu’il pourrait avoir aux tours suivants :</p>
+
+<p>Lorsqu’il fait une action, le programme va observer la récompense R qu’il obtient immédiatement, mais également évaluer la récompense future R_suivante, évalué comme le maximum des récompenses possibles dans le nouvel état.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">R_suivante</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span> <span class="no">Table</span><span class="p">[</span><span class="no">Etat</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="p">)</span>
+
+<span class="no">Table</span><span class="p">[</span> <span class="no">Etat</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="no">Action</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="no">R</span> <span class="o">+</span> <span class="no">R_suivante</span></code></pre></figure>
+
+<p>De cette façon, au fur et à mesure des parties, la table sera constituée non seulement des récompenses immédiates de chaque action, mais aussi des récompenses probables plus lointaines.</p>
+
+<p><img src="/assets/images/im10.gif" alt="img10" /></p>
+
+<h1 id="mise-en-pratique">Mise en pratique</h1>
+
+<p>Nous pouvons maintenant faire jouer notre programme et voir comment il se débrouille. Nous allons devoir lui trouver un adversaire : nous pouvons trouver une IA dans n’importe quel jeu de morpion disponible sur Internet. Choisissons-en une et faisons-là jouer contre notre programme.</p>
+
+<p><img src="/assets/images/im11.gif" alt="img11" /></p>
+
+<p>Au début, notre programme se fait systématiquement battre. Mais au bout d’environ 1000 parties, il commence à enchainer les victoires, et finit par ne laisser gagner aucune partie à son adversaire.</p>
+
+<p><img src="/assets/images/im12.gif" alt="img12" /></p>
+
+<p>Il est donc bien entrainé, et à su trouver une stratégie pour battre son adversaire à tous les coups. Essayons de voir si il arrive à battre un humain ?</p>
+
+<h1 id="mise-en-pratique-pour-de-vrai">Mise en pratique (pour de vrai)</h1>
+
+<p>En jouant nous-mêmes contre le programme, surprise : il est vraiment naze. Il ne cherche même pas à nous bloquer, ni à compléter une ligne. Il se fait battre à tous les coups …</p>
+
+<p>Alors, pourquoi ne montre-t-il aucun signe de stratégie alors qu’il s’est si bien débrouillé contre l’IA trouvée sur Internet ?</p>
+
+<p>En réalité, on a mis face à notre programme une IA avec une stratégie unique, codée en <strong>Finite State Machine</strong> : elle adoptera toujours le même comportement dans une situation donnée. A force de parties, le programme est donc super-entrainé contre la stratégie de l’IA, mais n’est absolument pas entrainé contre un autre adversaire ayant une autre stratégie.</p>
+
+<p>Alors, comment faire pour varier les stratégies rencontrées par notre programme, afin qu’il soie plus fort contre un éventuel nouvel adversaire ? Plusieurs solutions s’offrent à nous :</p>
+
+<ul>
+  <li>On pourrait ajouter, de temps en temps, des mouvements aléatoires lors des parties. Notre programme pourra alors être face à des situations inédites et non inscrites dans la stratégie de l’adversaire ;</li>
+  <li>On pourrait également trouver plusieurs IA aux stratégies différentes, et le faire se battre tour à tour contre chacune d’entre elles ;</li>
+  <li>Une troisième solution, plus simple, serait tout simplement de créer plusieurs programmes, au fonctionnement identique au premier, et de les faire jouer les uns contre les autres.</li>
+</ul>
+
+<p>La troisième solution est plus simple, et dans un sens plus intéressante : en faisant jouer des programmes qui n’ont à priori aucune connaissance des règles ni des stratégies, on pourrait faire émerger des stratégies nouvelles et efficaces contre un potentiellement efficaces contre un nouvel adversaire.</p>
+
+<p>Nous choisissons de faire jouer 10 agents les uns contre les autres.</p>
+
+:ET
