@@ -19,15 +19,18 @@
 # in the templates via {{ site.myvariable }}.
 
 title: tidiane.camaret
-email: your-email@example.com
+#email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   Heres a personal blog, where I'll describe some of my programming projects and where i'll attempt to explain, with my own words, the insides of machine learning algorithms, and what really happens when they learn.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: jekyllrb
+twitter_username: tidyyoroom
 github_username:  tidours
 
 # Build settings
+
+#theme: jekyll-theme-dark-minimal
+
 theme: minima
 plugins:
   - jekyll-feed
