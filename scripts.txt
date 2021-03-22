@@ -1,0 +1,2 @@
+lancer site : 
+bundle exec jekyll serve
