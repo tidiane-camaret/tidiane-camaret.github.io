@@ -1,8 +1,10 @@
 ---
 layout: post
-title:  "Apprendre (tout seul) les règles du jeu"
+title:  "Q-Learning : Apprendre (tout seul) les règles du jeu"
 date:   2021-03-20 11:20:25 +0100
 categories: algorithmique
+lang: fr
+ref: morpion
 ---
 Je me suis toujours demandé comment les intelligences artificielles fonctionnaient dans les jeux vidéos. Comment les ennemis d’un jeu savent comment attaquer, éviter, fuir le joueur selon le contexte ?
 
@@ -22,9 +24,9 @@ Cette manière de programmer l’IA, appelée **Finite State Machine**, est une 
 
 A chaque tour de la partie, notre programme observera donc l’**état** du jeu et effectuera l’**action** correspondante.
 
-C’est une bonne méthode pour coder des programmes s’adaptant à leur environnement. Par contre, elle nécessite de **réfléchir en amont à cette liste d’états et d’actions**. Cela implique d’avoir déjà une bonne connaissance des règles et des stratégies gagnantes du jeu. Et oui, si notre programme se retrouve par malheur dans un cas que l’on avait pas prévu en amont, il sera tout simplement bloqué.
+C’est une bonne méthode pour coder des agents s’adaptant au comportement de l'adversaire. Par contre, elle nécessite de **réfléchir en amont à cette liste d’états et d’actions**. Cela implique d’avoir déjà une bonne connaissance des règles et des stratégies gagnantes du jeu. Et oui, si notre programme se retrouve par malheur dans un cas que l’on avait pas prévu en amont, il sera tout simplement bloqué.
 
-Une manière intéressante de faire serait de faire en sorte que **le programme construise, au fur et à mesure de ses parties, sa propre stratégie**. En soi, un peu comme ce que font les humain : nous n’avons pas besoin de connaitre à l’avance et en détail les stratégies gagnantes d’un jeu. Nous jouons, et petit à petit, nous apprenons quelles actions sont les plus probables, à chaque étape du jeu, de nous mener à la victoire.
+Une manière intéressante de faire serait de faire en sorte que **le programme construise, au fur et à mesure de ses parties, sa propre stratégie**. En soi, un peu comme ce que font les humains : Lorsque nous jouons pour la première fois à un jeu, nous n’avons pas besoin de connaitre à l’avance et en détail ses stratégies gagnantes. Nous connaissons seulement les règles, et petit à petit, nous apprenons quelles actions sont les plus probables, à chaque étape du jeu, de nous mener à la victoire.
 
 # Les bases du fonctionnement
 
