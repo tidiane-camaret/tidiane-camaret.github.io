@@ -32,7 +32,7 @@ Nous voulons utiliser la plateforme Instagram, nous devons trouver un moyen de p
 
 Heureusement, des programmes permettent de 'scraper' Instagram, c'est à dire de parcourir automatiquement le site afin de récupérer automatiquement les données qui nous intéressent.
 
-Un de ces programmes, codé en python et nommé instagram-scraper, nous permet d'effectuer ce travail.
+Un de ces programmes, codé en python et nommé instagram-scraper, nous permet de télécharger l'ensemble des photos d'un profil donné. Nous allons essayer ceci sur un profil instagram comportant un grand nombre d'images diverses, un compte Instagram de la chaine National Geographic.
 
 https://github.com/arc298/instagram-scraper
 
@@ -41,20 +41,34 @@ pip install instagram-scraper
 instagram-scraper natgeotravel  
 {% endhighlight %}
 
+Nos photos sont bien téléchargées. Le problème est que ce téléchargement prend un temps assez long. Nous allons récupérer uniquement les adresses url des images, car celles-ci nous suffirons pour accéder aux images plus tard.
 
 {% highlight python %}
 name = "natgeotravel"
 !instagram-scraper $name --media-metadata --media-types none
 {% endhighlight %}
 
+Le temps d'execution est cettes fois-ci plus court.
 
 
 # Partie 2 : Décrire une image : Comment analyser une image afin d'en tirer une description 
 
+Maintenant que nous avons accès aux images, nous allons pouvoir assigner à chaqune d'entre elles une description. 
+Une méthode traditionnelle de machine learning pour extraire les informations d'une image est d'utiliser des réseaux de neurones. Ces algorithmes prennent en entrée une image, ou plus particulièrement l'intensité de chaque pixel d'une image, et en ressortent 
+
+Une architecture prisée en réseaux de neurones est le CNN
+
+Malheureusement, plus d'un objet par image donc peu fiable
+
+On utilise un générateur de descriptions. 
+
+A la fin, nous avons une base de données comprenant l'url de chaque image, ainsi que 
 
 
 
-# Partie 3 : Récupérer les meilleurs résultats : créer une API renvoyant les images les plus proches d'une requète
+
+# Partie 3 : Récupérer les meilleurs résultats : créer une API renvoyant les images les plus proches d'une descrption donnée
+
 
 
 # Partie 3 : Afficher les résultats : créer une application interagissant avec l'API
