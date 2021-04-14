@@ -28,9 +28,9 @@ L'application est hébergée ici : https://photosearch-app.netlify.app/. Elle es
 # Partie 1 : Trouver des images : Comment fouiller Instagram
 
 Tout d'abord, nous devons trouver un ensemble d'images sur lequel appliquer notre algorithme.
-Nous voulons utiliser la plateforme Instagram, nous devons trouver un moyen de parcourir le site et d'en récupérer les photos. En effet, Instagram permet de consulter les images postées par un utilisateur donné, mais ne permet pas de télécharger en masse ces images, ni d'en récupérer leurs adresses. A première vue, la seule solution pour se constituer une banque d'images serait donc de parcourir les profils et de télécharger manuellement chaque image.
+Nous voulons utiliser la plateforme Instagram, nous devons trouver un moyen de parcourir le site et d'en récupérer les photos. En effet, Instagram permet de consulter les images postées par un utilisateur donné, mais ne permet pas de télécharger en masse ces images, ni d'en récupérer leurs adresses. A première vue, la seule solution pour se constituer une banque d'images serait donc de parcourir les profils et de les télécharger manuellement une à une.
 
-Heureusement, des programmes permettent de 'scraper' Instagram, c'est à dire de parcourir automatiquement le site afin de récupérer automatiquement les données qui nous intéressent.
+Heureusement, des programmes permettent de 'scraper' Instagram, c'est à dire de parcourir automatiquement le site afin de récupérer les données qui nous intéressent.
 
 Un de ces programmes, codé en python et nommé instagram-scraper, nous permet de télécharger l'ensemble des photos d'un profil donné. Nous allons essayer ceci sur un profil instagram comportant un grand nombre d'images diverses, un compte Instagram de la chaine National Geographic.
 
@@ -41,26 +41,39 @@ pip install instagram-scraper
 instagram-scraper natgeotravel  
 {% endhighlight %}
 
-Nos photos sont bien téléchargées. Le problème est que ce téléchargement prend un temps assez long. Nous allons récupérer uniquement les adresses url des images, car celles-ci nous suffirons pour accéder aux images plus tard.
+Nos photos sont bien téléchargées. Le problème est que ce téléchargement prend un temps assez long. Nous pouvons demander au script de récupérer uniquement les adresses url des images, car celles-ci nous suffirons pour accéder aux images plus tard.
 
 {% highlight python %}
-name = "natgeotravel"
-!instagram-scraper $name --media-metadata --media-types none
+instagram-scraper natgeotravel --media-metadata --media-types none
 {% endhighlight %}
 
-Le temps d'execution est cettes fois-ci plus court.
+Le temps d'execution est cette fois-ci bien plus court.
 
 
 # Partie 2 : Décrire une image : Comment analyser une image afin d'en tirer une description 
 
 Maintenant que nous avons accès aux images, nous allons pouvoir assigner à chaqune d'entre elles une description. 
-Une méthode traditionnelle de machine learning pour extraire les informations d'une image est d'utiliser des réseaux de neurones. Ces algorithmes prennent en entrée une image, ou plus particulièrement l'intensité de chaque pixel d'une image, et en ressortent 
+Une méthode traditionnelle de machine learning pour extraire les informations d'une image est le réseau de neurones, et plus particulièrement le réseau de neurones convolutif (CNN). Il applique des convolutions sur l'image sur adapté à détecter des motifs de plus ou moins haut niveau sur la surface de l'image. 
 
-Une architecture prisée en réseaux de neurones est le CNN
+Lors de l'"entrainement" du réseau, celui-ci apprendra à la fois les caractéristiques des convolutions à appliquer, et à quel contenu associer ces motifs : visage, voiture, chat, etc ...
+
+Des CNN déja entrainés sur de grandes bases de données d'images sont disponibles sur Internet
 
 Malheureusement, plus d'un objet par image donc peu fiable
 
+
+Certaines architectures tirant partie du fonctionnement du CNN ont la possibilité d'identifier plusieurs objets au sein d'une même image (Mask CNN, Yolo).
+Cependant, certaines images ne contiennent pas d'éléments individuellement identifiables mais seulement un paysage,  
+
+Nous souhaiterions, pour chaque image, produire une phrase résumant son contenu, et ceci qu'elle possède des éléments identifiables individuellement ou non.
+
+Le papier Show, Attend and Tell: Neural Image Caption Generation with Visual Attention, de Kelvin Xu et Al propose une architecture permettant d'associer à une image une phrase descriptive. Celle-ci est constituée d'un CNN, ainsi que d'un réseau récurrent (RNN), permettant de générer des phrases cohérentes.
+
 On utilise un générateur de descriptions. 
+
+
+
+
 
 A la fin, nous avons une base de données comprenant l'url de chaque image, ainsi que 
 
@@ -71,4 +84,4 @@ A la fin, nous avons une base de données comprenant l'url de chaque image, ains
 
 
 
-# Partie 3 : Afficher les résultats : créer une application interagissant avec l'API
+# Partie 4 : Afficher les résultats : créer une application interagissant avec l'API
