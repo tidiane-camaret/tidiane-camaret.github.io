@@ -150,6 +150,10 @@ Nous utilisons ici la fonction TfidfVectorizer() de la bibliothèque *sklearn*, 
 
 
 ```python
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    import pandas as pd
+    import numpy as np 
+
     documents = [d["caption"] for d in name_data]
 
     vectorizer = TfidfVectorizer()
@@ -188,13 +192,12 @@ Nous trions notre liste d'urls par ordre croissant de degré de similarité, pui
 ```
 
 
-Notre but final est de créer une application permettant à n'importe quel utilisateur de taper sa requète, puis d'obtenir les résultats fournis par ce script.
+Notre but est de créer une application permettant à n'importe quel utilisateur de taper sa requète, puis d'obtenir les résultats fournis par ce script.
 Nous allons donc faire en sorte que le script ci-dessus se déclenche à chaque requète, en l'inscrivant à l'interieur d'un serveur. Ceci est permis par le framework Flask : 
 
 ```python
 import flask
 from flask import request, jsonify
-from fuzzywuzzy import fuzz
 import json
 
 
@@ -216,7 +219,7 @@ def api_id():
         search_string = str(request.args['str'])
         name = str(request.args['name'])
 
-
+## les trois paragraphes de code précédents sont repris ici
 
     response = jsonify(results)
 
@@ -229,7 +232,11 @@ if __name__ == '__main__':
     app.run(threaded=True, port=5000)
 ```
 
-Nous pouvons lancer notre serveur sur 
+Créons un script nommé api.py contenant le code ci-dessus. Nous pouvons lancer notre serveur en local via la commande :
+```console
+$python3 api.py
+```
+
 
 
 # Partie 4 : Afficher les résultats : créer une application interagissant avec l'API
