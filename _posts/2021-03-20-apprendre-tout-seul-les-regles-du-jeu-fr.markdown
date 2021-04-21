@@ -10,7 +10,7 @@ Je me suis toujours demandé comment les intelligences artificielles fonctionnai
 
 En fait, dans la plupart des jeux, le comportement des IA est codé par une simple liste de conditions : à l’avance, les concepteurs déterminent une liste d’**états** du jeu, et, pour chacun de ces états, un ensemble d’**actions** à exécuter. Dans un jeu simple comme Pacman, ça pourrait par exemple ressembler à ça : 
 
-![img1](/assets/images/im1.gif)
+![img1](/assets/images/q_learning/im1.gif)
 *Deux états, deux actions.*
 
 Cette manière de programmer l’IA, appelée **Finite State Machine**, est une méthode simple permettant de créer des agents s’adaptant à leur environnement. Essayons par exemple d’écrire le programme pour l’IA d’un jeu de morpion :
@@ -34,31 +34,31 @@ Nous allons essayer de créer un programme apprenant à jouer au morpion par lui
 
 Lors d’une partie, à chaque étape, le plateau du jeu va être constitué d’une certaine disposition de ronds et de croix, par exemple, celle là : 
 
-<img src="/assets/images/im2.png" alt="drawing" width="200"/>
+<img src="/assets/images/q_learning/im2.png" alt="drawing" width="200"/>
 
 ou celle là : 
 
-<img src="/assets/images/im3.png" alt="drawing" width="200"/>
+<img src="/assets/images/q_learning/im3.png" alt="drawing" width="200"/>
 
 En tout, le joueur peut se retrouver face à **5478** dispositions, ou **états** différents.
 
-![img4](/assets/images/im4.gif)
+![img4](/assets/images/q_learning/im4.gif)
 
 A chaque tour, le programme se retrouvera face à un de ces états, et devra accomplir une **action**, c’est-à-dire jouer quelque part. Le plateau du jeu étant constitué de 9 cases, il y a au plus 9 actions possibles, qu’on peut labelliser de A à I : 
 
-![img5](/assets/images/im5.png)
+![img5](/assets/images/q_learning/im5.png)
 
 
 On va donner à notre programme un but à atteindre : Maximiser un nombre de points au cours de ses parties. Pour chaque partie, on lui attribue **1 point lorsqu’il gagne**, et **-1 point lorsqu’il perd**.
 
 Illustrons ce mécanisme par un exemple, dans un état au hasard. Ici, le programme peut jouer en B, F et H. 
 
-![img6](/assets/images/im6.gif)
+![img6](/assets/images/q_learning/im6.gif)
 *Si le programme joue en B ou F, il gagnera la partie : +1 point pour lui. Si il joue en H, il est très probable que l’adversaire joue en F au prochain coup : -1 point.*
 
 Imaginons un instant qu’on ait au préalable réussi à évaluer les points que rapportent chacune des 9 actions, dans les 5478 états. 
 
-![img7](/assets/images/im7.gif)
+![img7](/assets/images/q_learning/im7.gif)
 *L’ensemble des points rapportés par les 9 actions possibles, pour chacun des 5478 états.*
 
 Si on arrive à évaluer parfaitement combien de point rapportent chaque action dans chaque état, on peut simplement demander au programme de chercher, à chaque fois qu’il rencontre un état, l’action qui lui rapportera le **maximum** de points, et accomplir cette action : 
@@ -67,7 +67,7 @@ Si on arrive à évaluer parfaitement combien de point rapportent chaque action 
 Action(t) = argmax( Table[Etat(t)] )
 {% endhighlight %}
 
-![img8](/assets/images/im8.gif)
+![img8](/assets/images/q_learning/im8.gif)
 *Le programme effectue l’action lui rapportant le plus de points probables, selon les valeurs de la table.*
 
 # Apprendre en se trompant
@@ -81,7 +81,7 @@ Notons R la récompense obtenue après avoir réalisé une action à un état do
 Table[ Etat(t), Action(t)] = R
 {% endhighlight %}
 
-![img9](/assets/images/im9.gif)
+![img9](/assets/images/q_learning/im9.gif)
 *Lorsqu’on reçoit une récompense après une action, on met à jour la valeur correspondante de la table.*
 
 
@@ -107,17 +107,17 @@ Table[ Etat(t), Action(t)] = R + R_suivante
 
 De cette façon, au fur et à mesure des parties, la table sera constituée non seulement des récompenses immédiates de chaque action, mais aussi des récompenses probables plus lointaines.
 
-![img10](/assets/images/im10.gif)
+![img10](/assets/images/q_learning/im10.gif)
 
 # Mise en pratique
 
 Nous pouvons maintenant faire jouer notre programme et voir comment il se débrouille. Nous allons devoir lui trouver un adversaire : nous pouvons trouver une IA dans n’importe quel jeu de morpion disponible sur Internet. Choisissons-en une et faisons-là jouer contre notre programme.
 
-![img11](/assets/images/im11.gif)
+![img11](/assets/images/q_learning/im11.gif)
 
 Au début, notre programme se fait systématiquement battre. Mais au bout d’environ 1000 parties, il commence à enchainer les victoires, et finit par ne laisser gagner aucune partie à son adversaire.
 
-![img12](/assets/images/im12.gif)
+![img12](/assets/images/q_learning/im12.gif)
 
 Il est donc bien entrainé, et à su trouver une stratégie pour battre son adversaire à tous les coups. Essayons de voir si il arrive à battre un humain ?
 

@@ -12,7 +12,7 @@ I've always wondered how artifical intelligences could operate in video games. H
 It turns out that is fact, in the majority of games, the AIs behavior is coded by a simple list of conditions: video game developpers usually determine by advance a list of **states** the game can be in, and, for each of these states, decide of a list of **actions** for the AI to execute. In a relatively simple game like Pacman, it could turn out like this :
 
 
-![img1](/assets/images/im1.gif)
+![img1](/assets/images/q_learning/im1.gif)
 *A pacman game : two states, two possible actions.*
 
 This way of programming an AI, called **Finite State Machine**, is a simple method allowing to create agents that can adapt to the game environment. Lets try for example to write the list of states and actions for a tic-tac-toe game : 
@@ -38,33 +38,33 @@ We will try to create a program that learns to play tic-tac-toe by itself. Lets 
 During a game, at each step, the games board will be made of a certain arrangement of crosses and circles, for example this one : 
 
 
-<img src="/assets/images/im2.png" alt="drawing" width="200"/>
+<img src="/assets/images/q_learning/im2.png" alt="drawing" width="200"/>
 
 or this one : 
 
-<img src="/assets/images/im3.png" alt="drawing" width="200"/>
+<img src="/assets/images/q_learning/im3.png" alt="drawing" width="200"/>
 
 In total, the player can be faced with **5478** different dispositions, or **states**.
 
 
-![img4](/assets/images/im4.gif)
+![img4](/assets/images/q_learning/im4.gif)
 
 At each turn, the program will find itself in one of these states, and will have to perform an **action**, i.e. play somewhere. The game board being made of 9 squares, there are at most 9 possible actions, which can be labeled from A to I: 
 
-![img5](/assets/images/im5.png)
+![img5](/assets/images/q_learning/im5.png)
 
 
 We will give our program a goal to reach: Maximize a number of points during its games. For each game, we give it **1 point when it wins**, and **-1 point when it loses**.
 
 Let's illustrate this mechanism with an example, in a random state. Here, the program can play in B, F and H. 
 
-![img6](/assets/images/im6.gif)
+![img6](/assets/images/q_learning/im6.gif)
 *If the program plays B or F, it will win the game: +1 point for it. If he plays in H, it is very likely that the opponent will play in F at the next move: -1 point.*
 
 Let's imagine for a moment that we had previously succeeded in evaluating the points earned by each of the 9 actions, in the 5478 states. 
 
 
-![img7](/assets/images/im7.gif)
+![img7](/assets/images/q_learning/im7.gif)
 *The set of points brought by the 9 possible actions, for each of the 5478 states.*
 
 If we can evaluate perfectly how many points each action brings in each state, we can simply ask the program to look, each time it encounters a state, for the action that will bring in the **maximum** number of points, and perform this action: 
@@ -73,7 +73,7 @@ If we can evaluate perfectly how many points each action brings in each state, w
 Action(t) = argmax( Table[State(t)] )
 {% endhighlight %}
 
-![img8](/assets/images/im8.gif)
+![img8](/assets/images/q_learning/im8.gif)
 *The program performs the action that gives it the most probable points, according to the values in the table.*
 
 # Learn by making mistakes
@@ -87,7 +87,7 @@ Let us note R the reward obtained after having carried out an action in a given 
 Table[ State(t), Action(t)] = R
 {% endhighlight %}
 
-![img9](/assets/images/im9.gif)
+![img9](/assets/images/q_learning/im9.gif)
 *When we receive a reward after an action, we update the corresponding value of the table.*
 
 
@@ -113,17 +113,17 @@ Table[ State(t), Action(t)] = R + R_Next
 
 In this way, as the game progresses, the table will consist not only of the immediate rewards of each action, but also of the more distant probable rewards.
 
-![img10](/assets/images/im10.gif)
+![img10](/assets/images/q_learning/im10.gif)
 
 # Putting it into practice
 
 We can now play our program and see how it does. We will have to find an opponent for it: we can find an AI in any tic-tac-toe game available on the Internet. Let's pick one and play it against our program.
 
-![img11](/assets/images/im11.gif)
+![img11](/assets/images/q_learning/im11.gif)
 
 At the beginning, our program is systematically beaten. But after about 1000 games, it starts to win, and ends up not letting its opponent win any game.
 
-![img12](/assets/images/im12.gif)
+![img12](/assets/images/q_learning/im12.gif)
 
 He is well trained, and knew how to find a strategy to beat his opponent every time. Let's try to see if he can beat a human ?
 

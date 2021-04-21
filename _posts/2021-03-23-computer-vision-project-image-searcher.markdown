@@ -7,14 +7,31 @@ lang: fr
 ref: image_searcher
 ---
 
-Un champ d'étude de l'analyse d'images, l'image captioning, se penche sur les méthodes numériques permettant de décrire le contenu d'une image, par une phrase plus ou moins longue.
+Un champ d'étude de l'analyse d'images, l'**image captioning**, se penche sur les méthodes numériques permettant de décrire le contenu d'une photo, par une phrase plus ou moins longue.
 
-Il semble que les sites de partage d'images comme Instagram applique déja de lui mème, sur chaque photo postée par un utilisateur, un algorithme de description d'image. 
+![img1](/assets/images/project_image_searcher/im1.png)
+
+*Exemple d'une description d'image générée automatiquement.*
+
+Certains sites de partage d'images tirent profit d'algorithmes, pour labeliser et classer rapidement les images postées. Instagram [applique déja de lui mème, sur chaque photo postée par un utilisateur, un algorithme de description.](https://www.theverge.com/2018/11/28/18116323/instagram-ai-visual-impairment-description)
 Cependant, la description faite semble souvent assez vague :
-En plus, le site ne propose pas la recherche d'images à partir des descriptions générées.
+
+![img2](/assets/images/project_image_searcher/im2.png)
+
+![img3](/assets/images/project_image_searcher/im3.png)
 
 
-Nous allons donc ici décrire le fonctionnement d'une démo web permettant d'effectuer une recherche d'image précise sur un profil Instagram, à partir d'une description. L'application est hébergée ici : <https://photosearch-app.netlify.app/>. Elle est écrire en python pour le côté serveur (back) et en javascript, sous le framework ReactJs, pour le côté front.
+
+![img4](/assets/images/project_image_searcher/im4.png)
+
+![img5](/assets/images/project_image_searcher/im5.png)
+
+Nous pourrions essayer d'appliquer des algorithmes plus précis pour générer des descriptions. 
+
+De plus, Instagram ne propose pas de recherche d'images à partir des descriptions générées. Cela pourrait être utile pour retrouver une photo en la décrivant simplement avec des mots.
+
+
+Nous allons donc ici décrire le fonctionnement d'une démo web permettant d'effectuer une recherche d'image précise sur un profil Instagram, à partir de descriptions que nous générerons numériquement. L'application est hébergée ici : <https://photosearch-app.netlify.app/>. Elle est écrire en python pour le côté serveur (back) et en javascript, sous le framework ReactJs, pour le côté front.
 
 # Partie 1 : Trouver des images : Comment fouiller Instagram
 
@@ -24,7 +41,7 @@ Instagram permet de consulter les images postées par un utilisateur donné, mai
 
 Heureusement, des programmes permettent de 'scraper' Instagram, c'est à dire de parcourir automatiquement le site afin de récupérer les données qui nous intéressent.
 
-Un de ces programmes, codé en python et nommé instagram-scraper, nous permet de télécharger l'ensemble des photos d'un profil. Nous allons essayer ceci sur un profil instagram comportant un grand nombre d'images diverses : le compte NatGeoTravel de la chaine National Geographic.
+Un de ces programmes, codé en python et nommé `instagram-scraper`, nous permet de télécharger l'ensemble des photos d'un profil. Nous allons essayer ceci sur un profil instagram comportant un grand nombre d'images diverses : le compte **NatGeoTravel** de la chaine National Geographic.
 
 le script est disponible sur github : <https://github.com/arc298/instagram-scraper>.
 
@@ -237,6 +254,7 @@ Créons un script nommé api.py contenant le code ci-dessus. Nous pouvons lancer
 $python3 api.py
 ```
 
+Le serveur est maintenant en marche et répond à nos requètes.
 
 
 # Partie 4 : Afficher les résultats : créer une application interagissant avec l'API
