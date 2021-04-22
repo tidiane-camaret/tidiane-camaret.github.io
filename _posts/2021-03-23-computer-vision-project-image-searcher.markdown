@@ -10,10 +10,9 @@ ref: image_searcher
 Un champ d'étude de l'analyse d'images, l'**image captioning**, se penche sur les méthodes numériques permettant de décrire le contenu d'une photo, par une phrase plus ou moins longue.
 
 ![img1](/assets/images/project_image_searcher/im1.png)
-
 *Exemple d'une description d'image générée automatiquement.*
 
-Certains sites de partage d'images tirent profit d'algorithmes, pour labeliser et classer rapidement les images postées. Instagram [applique déja de lui mème, sur chaque photo postée par un utilisateur, un algorithme de description.](https://www.theverge.com/2018/11/28/18116323/instagram-ai-visual-impairment-description)
+La plupart des sites de partage d'images tirent profit d'algorithmes pour labeliser et classer rapidement les images postées. Instagram [applique déja de lui mème, sur chaque photo postée par un utilisateur, des méthodes de classification d'images.](https://www.theverge.com/2018/11/28/18116323/instagram-ai-visual-impairment-description)
 Cependant, la description faite semble souvent assez vague :
 
 ![img2](/assets/images/project_image_searcher/im2.png)
@@ -59,6 +58,8 @@ $instagram-scraper natgeotravel --media-metadata --media-types none
 Le temps d'execution est effectivement bien plus court.
 Nous allons stocker la liste d'urls au format json, dans un fichier nommé `url_list_natgeotravel.json`. Celui-ci constituera notre base de données.
 
+![img6](/assets/images/project_image_searcher/im6.png)
+*Liste des urls extraites*
 
 # Partie 2 : Décrire une image : Comment analyser une image afin d'en tirer une description 
 
@@ -67,10 +68,17 @@ Une méthode traditionnelle de machine learning pour extraire les informations d
 
 Lors de l'entrainement du réseau, celui-ci apprendra à la fois les caractéristiques des convolutions à appliquer, et à quel contenu associer ces motifs : visage, voiture, chat, etc ...
 
+![img7](/assets/images/project_image_searcher/im7.png)
+
+*Un schéma d'architecture possible pour un CNN* (source : [Kdnuggets.com](https://www.kdnuggets.com/2016/11/intuitive-explanation-convolutional-neural-networks.html/3))
+
 Des CNN déja entrainés sur de grandes bases de données d'images sont disponibles sur Internet. Parmi eux, [AlexNet](https://papers.nips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf), un CNN entrainé sur la base d'images [ImageNet](http://www.image-net.org/) (1.2 millions d'images de 1000 classes différentes), et publié en 2012, reste aujourd'hui un référence de modèle pré-entrainé.
 
+![img8](/assets/images/project_image_searcher/im8.png)
 
-Celui-ci est disponible au téléchargement sur la [page Kaggle](https://www.kaggle.com/pytorch/alexnet) de la librarie python *Pytorch*. 
+*Quelques échantillons d'ImageNet* (source : [Devopedia](https://devopedia.org/imagenet) )
+
+AlexNet est disponible au téléchargement sur la [page Kaggle](https://www.kaggle.com/pytorch/alexnet) de la librarie python *Pytorch*. 
 
 Il peut également être téléchargé directement depuis un script python :
 
@@ -87,7 +95,12 @@ from urllib.request import urlopen
 input_image = Image.open(urlopen("https://www.nosamis.fr/img/classic/Berger-Australien1.jpg"))
 {% endhighlight %}
 
-Nous normalisons l'image et la redimensionnons, puis la mettons sous forme de tenseur : 
+![img9](/assets/images/project_image_searcher/im9.jpg)
+
+*Notre image test : un berger australien*
+
+Nous normalisons l'image et la redimensionnons, puis la mettons sous forme de tenseur, un tableau multidimensionnel utilisé comme format de données par la librairie Pytorch :
+
 {% highlight python %}
 preprocess = transforms.Compose([
     transforms.Resize(256),
@@ -123,6 +136,9 @@ with open("imagenet_classes.txt", "r") as f:
 
 categories[torch.argmax(probabilities)] #resultat : 'Border collie'
 ```
+
+La probabilité la plus haute sortie par AlexNet est celle de la classe Border collie, ce qui n'est pas exactement notre photo initiale (berger australien), mais tout de même très proche compte tenu de la diversité des classes proposées par le modèle.
+
 Cette méthode est précise sur les exemples d'images que nous lui présentons :
 
 Cependant, elle nous fournit uniquement une liste d'éléments probables contenus dans l'image. Elle n'extrait pas d'actions telles que "courir", "faire du vélo", "allongé", ni d'éléments contextuels de l'image tels que "sur un banc", "au bord d'une plage", etc ...  
@@ -144,7 +160,7 @@ Nous avons donc une phrase descriptive de chaque photo du compte NatGeoTravel. N
 
 # Partie 3 : Récupérer les meilleurs résultats : créer une API renvoyant les images les plus proches d'une descrption donnée
 
-Notre but est de récupérer, pour une requète donnée, les *n* images dont les descriptions sont les plus proches de la requète. Nous allons pour celà utiliser une méthode bien connue en recherche de texte, la méthode TF-IDF, basée sur les fréquences d'apparition des termes de la requète dans les documents cherchés.
+Notre but est de récupérer, pour une requète donnée, les *n* images dont les descriptions sont les plus proches de la requète. Nous allons pour celà utiliser une méthode standard de recherche de texte, la méthode **TF-IDF**, basée sur les fréquences d'apparition des termes de la requète dans les documents cherchés.
 
 Imaginons que nous voulons retrouver une image de personnes marchant dans la rue. Notre requète sera la chaine de caractères suivante : "People walking down the street"
 Pour simplifier, imaginons que notre base de données contienne les 4 descriptions d'images suivantes :
@@ -161,7 +177,7 @@ Pour simplifier, imaginons que notre base de données contienne les 4 descriptio
 De manière générale, nous calculerons le degré de similarité entre notre requète et un texte j par le nombre de fois où un terme de la requète apparait dans j
 
 Afin d'obtenir un degré de similarité entre 0 et 1, nous le normalisons par le produit du nombre de mots de la requète et du texte j. 
-*Cette normalisation nous permet également en théorie de pénaliser les textes plus longs, qui de par leur taille ont statistiquement plus de chance de contenir des mots de la requète. Cependant, étant donné que les textes cherchés ont ici ont tous une taille similaire, cette pénalisation n'est pas necessaire.* 
+*Cette normalisation nous permet également en théorie de pénaliser les textes plus longs, qui de par leur taille ont statistiquement plus de chance de contenir des mots de la requète. Cependant, étant donné que les textes cherchés ont ici ont tous une taille similaire, cette normalisation a peu d'impact dans notre cas.* 
 
 Nous utilisons ici la fonction TfidfVectorizer() de la bibliothèque *sklearn*, nous permettant de transformer facilement nos textes en tableaux d'occurence de mots :
 
