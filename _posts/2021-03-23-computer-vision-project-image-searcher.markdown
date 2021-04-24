@@ -25,9 +25,7 @@ Cependant, la description faite semble souvent assez vague :
 
 ![img5](/assets/images/project_image_searcher/im5.png)
 
-Nous pourrions essayer d'appliquer des algorithmes plus précis pour générer des descriptions. 
-
-De plus, Instagram ne propose pas de recherche d'images à partir des descriptions générées. Cela pourrait être utile pour retrouver une photo en la décrivant simplement avec des mots.
+Nous pourrions essayer de trouver des algorithmes générant des descriptions plus précises pour chaque photo. De plus, Instagram ne propose pas de recherche d'images à partir des descriptions générées. Cela pourrait être utile pour retrouver une photo en la décrivant simplement avec des mots.
 
 
 Nous allons donc ici décrire le fonctionnement d'une démo web permettant d'effectuer une recherche d'image précise sur un profil Instagram, à partir de descriptions que nous générerons numériquement. L'application est hébergée ici : <https://photosearch-app.netlify.app/>. Elle est écrire en python pour le côté serveur (back) et en javascript, sous le framework ReactJs, pour le côté front.
@@ -141,6 +139,13 @@ La probabilité la plus haute sortie par AlexNet est celle de la classe Border c
 
 Cette méthode est précise sur les exemples d'images que nous lui présentons :
 
+
+![img10](/assets/images/project_image_searcher/im10.png)
+
+![img11](/assets/images/project_image_searcher/im11.jpg)
+
+![img12](/assets/images/project_image_searcher/im12.jpg)
+
 Cependant, elle nous fournit uniquement une liste d'éléments probables contenus dans l'image. Elle n'extrait pas d'actions telles que "courir", "faire du vélo", "allongé", ni d'éléments contextuels de l'image tels que "sur un banc", "au bord d'une plage", etc ...  
 
 Nous souhaiterions, pour chaque image, produire une phrase résumant son contenu, et ceci qu'elle possède des éléments identifiables individuellement ou non.
@@ -163,20 +168,20 @@ Nous avons donc une phrase descriptive de chaque photo du compte NatGeoTravel. N
 Notre but est de récupérer, pour une requète donnée, les *n* images dont les descriptions sont les plus proches de la requète. Nous allons pour celà utiliser une méthode standard de recherche de texte, la méthode **TF-IDF**, basée sur les fréquences d'apparition des termes de la requète dans les documents cherchés.
 
 Imaginons que nous voulons retrouver une image de personnes marchant dans la rue. Notre requète sera la chaine de caractères suivante : "People walking down the street"
-Pour simplifier, imaginons que notre base de données contienne les 4 descriptions d'images suivantes :
+Pour simplifier, imaginons que notre base de données contienne 4 descriptions. Chaque description peu contenir un nombre plus ou moins important de termes cherchés, ici en **gras** : 
 
 
 | image |                     sentence                    |
 |-------|:-----------------------------------------------:|
-| img1  |            A dog walking on a street            |
-| img2  |        A young girl surfing in the ocean        |
-| img3  |    A group of people walking down the street    |
-| img4  | A couple of people playing football in the park |
+| img1  |            A dog **walking** on a **street**            |
+| img2  |        A young girl surfing in **the** ocean        |
+| img3  |    A group of **people walking down the street**    |
+| img4  | A couple of **people** playing football in **the** park |
 
 
-De manière générale, nous calculerons le degré de similarité entre notre requète et un texte j par le nombre de fois où un terme de la requète apparait dans j
+La méthode **TF-IDF** se base sur l'hypothèse que deux documents partageant un grand nombre de mots ont des chances d'être proches sémantiquement. Nous calculerons le degré de similarité entre notre requète et un texte j par le nombre de fois où un terme de la requète apparait dans j.
 
-Afin d'obtenir un degré de similarité entre 0 et 1, nous le normalisons par le produit du nombre de mots de la requète et du texte j. 
+Afin d'obtenir un degré de similarité entre 0 et 1, nous divisons (ou *normalisons* ce nombre par le produit du nombre de mots de la requète et du texte j. 
 *Cette normalisation nous permet également en théorie de pénaliser les textes plus longs, qui de par leur taille ont statistiquement plus de chance de contenir des mots de la requète. Cependant, étant donné que les textes cherchés ont ici ont tous une taille similaire, cette normalisation a peu d'impact dans notre cas.* 
 
 Nous utilisons ici la fonction TfidfVectorizer() de la bibliothèque *sklearn*, nous permettant de transformer facilement nos textes en tableaux d'occurence de mots :
@@ -226,14 +231,45 @@ Nous trions notre liste d'urls par ordre croissant de degré de similarité, pui
 
 
 Notre but est de créer une application permettant à n'importe quel utilisateur de taper sa requète, puis d'obtenir les résultats fournis par ce script.
-Nous allons donc faire en sorte que le script ci-dessus se déclenche à chaque requète, en l'inscrivant à l'interieur d'un serveur. Ceci est permis par le framework Flask : 
+Nous allons donc faire en sorte que le script ci-dessus se déclenche à chaque requète, en l'inscrivant à l'interieur d'un serveur. Nous utilisons ici le framework [Flask](https://flask.palletsprojects.com/en/1.1.x/).
 
+Pour lancer notre serveur local Flask, nous écrivons le script suivant, que nous nommerons `api.py` : 
+
+```python
+import flask
+
+app = flask.Flask(__name__)
+app.config["DEBUG"] = True
+
+@app.route('/')
+def index():
+    return "<h1>Le serveur marche !!</h1>"
+
+
+if __name__ == '__main__':
+    # Threaded option to enable multiple instances for multiple user access support
+    app.run(threaded=True, port=5000)
+
+```
+
+Nous avons configuré notre serveur pour qu'il nous renvoie le message html "*Le serveur marche !!*" lorsque nous consultons sa racine.
+
+Nous lançons notre script :
+```console
+$python3 api.py
+```
+
+Notre serveur tourne maintenant en local à l'adresse http://127.0.0.1:5000/ :
+
+![img13](/assets/images/project_image_searcher/im13.png)
+
+Nous allons modifier notre script pour qu'à récéption d'une requète, il nous renvoie les urls classées.
+
+Nous introduisons quelques librairies utiles : 
 ```python
 import flask
 from flask import request, jsonify
 import json
-
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 import numpy as np
@@ -241,36 +277,80 @@ import numpy as np
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
+```
 
+Nous ouvrons ensuite notre base de données :
+```python
 data_file = open('photosearch_db.json', 'r') 
 data = json.load(data_file)
+```
 
-@app.route('/api/v1/search', methods=['GET'])
+Nous récupérons les arguments 'name' et 'search_string', qui seront respectivement l'identifiant Instagram sur lequel faire la recherche, et le texte cherché :
+```python
+@app.route('/', methods=['GET'])
 def api_id():
     # Check if a search string and name were provided.
     if ('str' in request.args) and ('name' in request.args):
         search_string = str(request.args['str'])
         name = str(request.args['name'])
 
-## les trois paragraphes de code précédents sont repris ici
+```
+Nous calculons les 100 meilleurs résultats selon la méthode **TF-IDF** et renvoyons les résultats : 
+
+```python
+
+    documents = [d["caption"] for d in name_data]
+
+    vectorizer = TfidfVectorizer()
+    X = vectorizer.fit_transform(documents)
+    # Convert the X as transposed matrix
+    X = X.T.toarray()# Create a DataFrame and set the vocabulary as the index
+    df = pd.DataFrame(X, index=vectorizer.get_feature_names())
+
+
+    q = [search_string]
+    q_vec = vectorizer.transform(q).toarray().reshape(df.shape[0],)
+    sim = []  # Calculate the similarity
+    
+    for i in range(len(documents)):
+        sim.append(np.dot(df.loc[:, i].values, q_vec) / np.linalg.norm(df.loc[:, i]) * np.linalg.norm(q_vec))
+  
+    urls = []
+    txts = []
+
+    for img in name_data :
+
+        urls.append(img["url"])
+        txts.append(img["caption"] + img["yolo_objects"])
+
+
+    paired_scores = zip(sim,urls,txts)
+
+    #sorted = [x for _,x in sorted(paired_scores)]
+    sorted_scores = sorted(paired_scores, key = lambda t : t[0],reverse = True)
+    # Create an empty list for our results
+
+    results = [i for i in sorted_scores if i[0] > 0]
+
+    if len(results) > 100 :
+        results = results[:100]
+
+    # Use the jsonify function from Flask to convert our list of
+    # Python dictionaries to the JSON format.
+    
 
     response = jsonify(results)
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     
     return response
-
-if __name__ == '__main__':
-    # Threaded option to enable multiple instances for multiple user access support
-    app.run(threaded=True, port=5000)
 ```
 
-Créons un script nommé api.py contenant le code ci-dessus. Nous pouvons lancer notre serveur en local via la commande :
-```console
-$python3 api.py
-```
+Nous pouvons maintenant tester notre serveur, avec la requète "people walking on the street", sur le compte "natgeotravel", en accédant à l'adresse  http://127.0.0.1:5000/?str=people+walking+on+street&name=natgeotravel :
 
-Le serveur est maintenant en marche et répond à nos requètes.
+![img15](/assets/images/project_image_searcher/im15.png)
+
+Le serveur nous renvoie bien une liste de 100 urls, ainsi que les scores de similarités et descriptions correspondantes.
 
 
 # Partie 4 : Afficher les résultats : créer une application interagissant avec l'API
