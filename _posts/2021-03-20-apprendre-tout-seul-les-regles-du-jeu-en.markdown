@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Q-Learning : Learn (by yourself) the rules of the game"
+title:  "Q-Learning : Learning (by yourself) the rules of the game"
 date:   2021-03-20 11:20:25 +0100
 categories: algorithmique
 lang: en
