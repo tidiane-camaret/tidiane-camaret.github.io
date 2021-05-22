@@ -9,7 +9,7 @@ ref: image_searcher
 
 Ces dernieres années, l'agumentation de la puissance de calcul des machines a permis la multiplication des méthodes permettant extraire de l'information d'une image donnée. "Extraire de l'information" a ici un sens large : On peut vouloir extraire d'une image des informations basiques, telles que son taux de luminosité, ou sa netteté. Mais certains algorithmes permettent de tirer d'une image des informations de plus haut niveau : détecter si l'image contient un visage, si elle contient du texte, ou tel ou tel objet ...
 
-Un champ d'étude de l'analyse d'images, l'image captioning, se penche sur la capacité d'un algorithme à décrire le contenu d'une image par une ou plusieurs phrases.
+Un champ d'étude de l'analyse d'images, l'image captioning, se penche sur la capacité d'un algorithme à décrire le contenu d'une image par un texte plus ou moins long.
 
 Le papier [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), de Kelvin Xu et Al propose une architecture permettant d'associer à une image une phrase descriptive. Elle est constituée d'un CNN et d'un réseau récurrent (RNN) permettant de générer des phrases cohérentes et en rapport avec l'image. On va ici décrire brièvement le fonctionnement d'une telle architecture, et tenter de produire nos propres descriptions.
 
@@ -46,7 +46,10 @@ Chaque image est donc transformée en un vecteur de taille fixe. Ce vecteur cont
 
 Les RNN sont un autre type d'architecture de réseau de neurones, particulièrement utilisées dans les taches impliquant un traitement séquentiel de l'information.
 
-Ils sont construits de manière à ce qu'à chaque étape du traitement, une partie des neurones du réseau conserve leur état pour l'étape suivante. De cette façon, ces réseaux ont la capacité de garder de l'information en mémoire lors du traitement du signal.
+Comme dans la plupart des architectures, ces réseaux prennent un vecteur en entrée, et donnent un vecteur en résultat. Leur particularité est que le résultat dépend du vecteur d'entrée, mais aussi des vecteurs d'entrée recus précédemment.
+
+
+Ceci fonctionne gràce au fait qu'à chaque étape du traitement, une partie des neurones du réseau conserve leur état pour l'étape suivante :
 
 Cette capacité est particulièrement utile pour les taches nécéssitant une "mémorisation" des étapes précédentes pour traiter chaque étape, comme dans l'interprétation de signaux audio ou de texte. 
 
@@ -71,6 +74,57 @@ En résumé, à chaque étape, le RNN utilisera comme entrée la sortie de l'ét
 
 
 # Partie 3 : Les données
+
+On va entrainer notre architecture sur la base de données COCO. Cette base de données contient des centaines de milliers d'images annotées, est est disponible au téléchargement sur https://cocodataset.org/.
+![img3](/assets/images/img_captioning/im3.png)
+
+
+```python
+from pycocotools.coco import COCO
+
+
+coco = COCO(instances_train2014.json)
+
+coco_caps = COCO(captions_train2014.json)
+
+# get image ids 
+ids = list(coco.anns.keys())
+```
+
+Regardons la première image de notre base :
+
+```python
+#import de quelques librairies pour l'affichage et la navigation
+import matplotlib.pyplot as plt 
+import skimage.io as io 
+import numpy as np 
+%matplotlib inline 
+
+#extraction du premier id de la base
+ann_id = ids[1]
+
+#affichage de l'image et de son url fixe
+img_id = coco.anns[ann_id]['image_id']
+img = coco.loadImgs( img_id )[0]
+url = img['coco_url']
+print(url)
+I = io.imread(url)
+plt.imshow(I)
+
+#affichage des descriptions 
+ann_ids = coco_caps.getAnnIds( img_id   )
+anns = coco_caps.loadAnns( ann_ids )
+coco_caps.showAnns(anns)
+
+```
+![img4](/assets/images/img_captioning/im4.png)
+
+# Partie 4 : le traitement du texte
+
+Pour permettre au RNN de traiter les phrases, on va les diviser en `tokens`, des unités d'informations que le réseau va traiter une à une. Chaque mot différent rencontré dans le texte de la base de donnée sera associé à un `token`, lui même indexé par un indice. Nous créeons également 3 `tokens` spécifiques, réservés à la compréhension du texte : 
+
+**<start>** indiquera le début d'une description, **<end>** en indiquera la fin, et **<unk>** sera utilisé pour indiquer les éventuels non répertoriés. 
+
 
 
 # Partie 4 : L'architechture
