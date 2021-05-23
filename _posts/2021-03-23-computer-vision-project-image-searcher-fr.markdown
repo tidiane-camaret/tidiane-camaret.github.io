@@ -22,13 +22,13 @@ Mais quand on examine ces descriptions, elles sont souvent assez vagues :
 
 En plus de ça, Instagram ne propose pas d'outil de recherche sur les descriptions générées.
 
-On pourrait appliquer sur ces photos d'autres méthodes d'analyse d'image, permettant de les décrire plus précisément. Cela nous permettrait de trouver facilement une image à l'aide d'une description.
+On pourrait appliquer sur ces photos d'autres méthodes d'analyse d'image, permettant de les décrire plus précisément. Ca nous permettrait de trouver facilement une image à l'aide d'une description.
 
 On va donc ici décrire le fonctionnement d'une démo web permettant d'effectuer une recherche d'image sur un profil Instagram, à partir de descriptions que nous générerons numériquement. On utilisera **python** pour le côté serveur (back) et **javascript** pour le front.
 
 # Partie 1 : Trouver des images : Comment fouiller Instagram
 
-On a d'abord besoin d'un ensemble d'images sur lequel effectuer notre recherche. Si nous voulons utiliser la plateforme Instagram, nous devons trouver un moyen de parcourir le site et d'en récupérer le contenu.
+On a d'abord besoin d'un ensemble d'images sur lequel effectuer notre recherche. Comme nous voulons utiliser la plateforme Instagram, on doit trouver un moyen de parcourir le site et d'en récupérer le contenu.
 
 Instagram ne propose pas d'interface pour télécharger plusieurs photos d'un coup. A première vue, la seule solution pour se constituer une banque d'images serait donc de parcourir les profils et de les télécharger manuellement une à une.
 
@@ -79,7 +79,7 @@ import torch
 model = torch.hub.load('pytorch/vision:v0.9.0', 'alexnet', pretrained=True)
 {% endhighlight %}
 
-Nous pouvons alors récupérer l'image de notre choix via son url, avec les librairies *PIL* et *urllib* :
+On peut alors récupérer l'image de notre choix via son url, avec les librairies *PIL* et *urllib* :
 
 {% highlight python %}
 from PIL import Image
@@ -140,13 +140,13 @@ Cette méthode est précise sur les exemples d'images que nous lui présentons :
 
 ![img12](/assets/images/project_image_searcher/im12.jpg)
 
-Cependant, elle nous fournit uniquement une liste d'éléments probables contenus dans l'image. Elle n'extrait pas d'actions telles que "courir", "faire du vélo", "allongé", ni d'éléments contextuels de l'image tels que "sur un banc", "au bord d'une plage", etc ...  
+Malheureusement, elle nous fournit uniquement une liste d'éléments probables contenus dans l'image. Elle n'extrait pas d'actions telles que "courir", "faire du vélo", "allongé", ni d'éléments contextuels de l'image tels que "sur un banc", "au bord d'une plage", etc ...  
 
 On aimerait, pour chaque image, produire une phrase résumant son contenu, et ceci qu'elle possède des éléments identifiables individuellement ou non.
 
-Le papier [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), de Kelvin Xu et Al propose une architecture permettant d'associer à une image une phrase descriptive. Celle-ci est constituée d'un CNN, ainsi que d'un réseau récurrent (RNN) permettant de générer des phrases cohérentes et en rapport avec l'image.
+Le papier [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), de Kelvin Xu et Al propose une architecture permettant d'associer à une image une phrase descriptive. Celle-ci est constituée d'un CNN, ainsi que d'un réseau récurrent (RNN) permettant de générer des phrases cohérentes et en rapport avec l'image. 
 
-On va utiliser ici une implémentation écrite par [Sgrvinod](https://github.com/sgrvinod), et disponible [ici](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning), que nous décrirons dans un prochain article.
+On va utiliser ici un script librement inspiré d'une implémentation de [Sgrvinod](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning), que je décris [dans cet article.](http://127.0.0.1:4000/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html)
 
 ```console
 $python3 imcap_sgrvinod/caption_photosearch.py  --model='imcap_sgrvinod/BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar' --word_map='imcap_sgrvinod/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json' --beam_size=5 --imglist='url_list_natgeotravel.json'--dict_path='captions_dict_natgeotravel.json'

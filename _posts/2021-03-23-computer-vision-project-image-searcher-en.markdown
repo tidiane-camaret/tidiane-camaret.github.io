@@ -7,7 +7,7 @@ lang: en
 ref: image_searcher
 ---
 
-Most image sharing sites take advantage of algorithms to quickly label and classify posted images. Instagram [already applies image classification methods to every photo posted by a user](https://www.theverge.com/2018/11/28/18116323/instagram-ai-visual-impairment-description)
+Most image sharing sites take advantage of algorithms to quickly label and classify posted images. Instagram [already applies image classification methods to every photo posted by a user.](https://www.theverge.com/2018/11/28/18116323/instagram-ai-visual-impairment-description)
 But when you look at these descriptions, they are often quite vague:
 
 ![img2](/assets/images/project_image_searcher/im2.png)
@@ -24,7 +24,7 @@ In addition to that, Instagram does not offer a search tool on the generated des
 
 We could apply other image analysis methods on these photos, allowing us to describe them more precisely. This would allow us to easily find an image using a description.
 
-We will therefore describe here the functioning of a web demo allowing us to perform an image search on an Instagram profile, from descriptions that we will generate digitally. We will use **python** for the server side (back) and **javascript** for the front.
+We will describe here the functioning of a web demo allowing us to perform an image search on an Instagram profile, from descriptions that we will generate digitally. We will use **python** for the server side (back) and **javascript** for the front.
 
 
 
@@ -38,14 +38,14 @@ Fortunately, there are programs that allow you to **'scraper'** Instagram, that 
 
 One of these programs, coded in python by [arc298](https://github.com/arc298/) and named [instagram-scraper](https://github.com/arc298/instagram-scraper), allows us to download all the photos of a profile. We will try this on an instagram profile with a large number of various images: the **NatGeoTravel** account of the National Geographic channel.
 
-console
+```console
 $pip install instagram-scraper
 $instagram-scraper natgeotravel  
 ```
 
 The download takes quite a long time, about 10 photos per second. Fortunately, the script has an option to retrieve only the url addresses of the images, with a potentially faster download time. These addresses will be enough for us to access the images later.
 
-console
+```console
 $instagram-scraper natgeotravel --media-metadata --media-types none
 ```
 
@@ -63,7 +63,7 @@ A traditional method of machine learning to extract information from an image is
 
 When training the network, it will learn both the characteristics of the convolutions to be applied, and **to which content to associate these patterns** : face, car, cat, etc ...
 
-img7](/assets/images/project_image_searcher/im7.png)
+![img7](/assets/images/project_image_searcher/im7.png)
 
 *A possible architecture scheme for a CNN* (source: [Kdnuggets.com](https://www.kdnuggets.com/2016/11/intuitive-explanation-convolutional-neural-networks.html/3))
 
@@ -149,7 +149,7 @@ We would like, for each image, to produce a sentence summarizing its content, an
 
 The paper [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), by Kelvin Xu et Al proposes an architecture allowing to associate a descriptive sentence to an image. This architecture is composed of a CNN and a recurrent network (RNN) allowing to generate coherent sentences related to the image.
 
-We will use here an implementation written by [Sgrvinod](https://github.com/sgrvinod), and available [here](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning), which we will describe in a next article.
+We will use here an script freely inspired by [Sgrvinod](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning), which I describe [in this article](http://127.0.0.1:4000/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html).
 
 ```console
 $python3 imcap_sgrvinod/caption_photosearch.py --model='imcap_sgrvinod/BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth. tar' --word_map='imcap_sgrvinod/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json' --beam_size=5 --imglist='url_list_natgeotravel.json'--dict_path='captions_dict_natgeotravel.json'

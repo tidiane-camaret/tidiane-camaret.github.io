@@ -13,7 +13,7 @@ It turns out that is fact, in the majority of games, the AIs behavior is coded b
 
 
 ![img1](/assets/images/q_learning/im1.gif)
-*A pacman game : two states, two possible actions.*
+*A pacman game : two states (invicible mode, non invincible mode) and two possible corresponding actions (*
 
 This way of programming an AI, called **Finite State Machine**, is a simple method allowing to create agents that can adapt to the game environment. Lets try for example to write the list of states and actions for a tic-tac-toe game : 
 
@@ -142,6 +142,7 @@ So, how can we vary the strategies encountered by our program, so that it become
 - We could also find several AIs with different strategies, and make it fight against each of them in turn;
 - A third solution, simpler, would be simply to create several programs, with the same functioning as the first one, and to make them play against each other. 
 
-La troisième solution est plus simple, et dans un sens plus intéressante : en faisant jouer des programmes qui n’ont à priori aucune connaissance des règles ni des stratégies, on pourrait faire émerger des stratégies nouvelles et efficaces contre un potentiellement efficaces contre un nouvel adversaire.
+The third solution is simpler, and in a sense, more interesting : by making naive agents play against each other, without them having any knowledge about strategies beforehand, we could make new and efficient strategies naturally emerge.
 
-Nous choisissons de faire jouer 10 agents les uns contre les autres. 
+We choose to make play 10 agents against each other. And this time indeed, after 1000 plays, the best agent is able to have a strategy against a human play : He has encountered a sufficient number of different strategies during his training.
+

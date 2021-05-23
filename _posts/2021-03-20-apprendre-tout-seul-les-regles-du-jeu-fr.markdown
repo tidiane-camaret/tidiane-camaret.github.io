@@ -138,7 +138,7 @@ Alors, comment faire pour varier les stratégies rencontrées par notre programm
 
 La troisième solution est plus simple, et dans un sens plus intéressante : en faisant jouer des programmes qui n’ont à priori aucune connaissance des règles ni des stratégies, on pourrait faire émerger des stratégies nouvelles et efficaces contre un potentiellement efficaces contre un nouvel adversaire.
 
-Nous choisissons de faire jouer 10 agents les uns contre les autres. 
+Nous choisissons de faire jouer 10 agents les uns contre les autres. Et cette fois-ci, effectivement, au bout de 1000 parties, le meilleur agent est capable de concevoir une stratégie contre un joueur humain. Ceci est du au fait qu'il a rencontré un nombre suffisant de stratégie différentes pendant son entrainement.
 
 
 

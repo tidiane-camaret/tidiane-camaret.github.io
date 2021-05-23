@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Description d'image :  décrire une image "
+title:  "Description d'image :  réseaux convolutifs et réccurents avec pytorch "
 date:   2021-04-18 11:20:25 +0100
 categories: computer_vision react python data_science
 lang: fr
