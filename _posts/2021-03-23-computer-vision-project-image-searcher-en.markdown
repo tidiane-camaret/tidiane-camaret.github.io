@@ -8,7 +8,7 @@ ref: image_searcher
 ---
 
 Most image sharing sites take advantage of algorithms to quickly label and classify posted images. Instagram [already applies image classification methods to every photo posted by a user.](https://www.theverge.com/2018/11/28/18116323/instagram-ai-visual-impairment-description)
-But when you look at these descriptions, they are often quite vague:
+But when we take a look at these descriptions, they seem often quite vague:
 
 ![img2](/assets/images/project_image_searcher/im2.png)
 
