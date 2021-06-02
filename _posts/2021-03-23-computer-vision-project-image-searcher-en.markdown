@@ -20,7 +20,7 @@ But when we take a look at these descriptions, they seem often quite vague:
 
 ![img5](/assets/images/project_image_searcher/im5.png)
 
-In addition to that, Instagram does not offer a search tool on the generated descriptions.
+In addition to that, Instagram gives no option to perform searches across the generated descriptions.
 
 We could apply other image analysis methods on these photos, allowing us to describe them more precisely. This would allow us to easily find an image using a description.
 
@@ -32,9 +32,9 @@ We will describe here the functioning of a web demo allowing us to perform an im
 
 First, we need a set of images to search on. If we want to use the Instagram platform, we need a way to browse the site and retrieve content.
 
-Instagram does not offer an interface to upload multiple photos at once. At first glance, the only solution to build up a bank of images would therefore be to browse the profiles and download them manually one by one.
+Instagram does not offer an interface to download multiple photos at once. At first glance, the only solution to build up a dataset of images would therefore be to browse the profiles and download them manually one by one.
 
-Fortunately, there are programs that allow you to **'scraper'** Instagram, that is to say, to automatically browse the site in order to retrieve the data that interests you.
+Fortunately, there are programs that allow you to **'scrape'** Instagram, that is to say, to automatically browse the site in order to retrieve the data that interests you.
 
 One of these programs, coded in python by [arc298](https://github.com/arc298/) and named [instagram-scraper](https://github.com/arc298/instagram-scraper), allows us to download all the photos of a profile. We will try this on an instagram profile with a large number of various images: the **NatGeoTravel** account of the National Geographic channel.
 
