@@ -88,13 +88,36 @@ for i in range(len(data_group)) :
     print(list(count.keys())[0:10], "\n")
 
 ```
-compter la fréquence d’apparition des mots afin  d’estimer un champ lexical propre à la catégorie :
+![img2](/assets/images/question_classif/im2.png)
+*Les 10 termes apparaissant le plus souvent dans chaque catégorie*
+
+```python
+dtf_train, dtf_test = model_selection.train_test_split(data, test_size=0.3)
+
+y_train = dtf_train["Category2"].values
 
 
+corpus = dtf_train["Questions"] #ensemble des textes des questions d'entrainement
+
+vectorizer = feature_extraction.text.CountVectorizer(max_features=10000)#, ngram_range=(1,1))
+vectorizer.fit(corpus)
+
+classifier = naive_bayes.MultinomialNB()
+X_train = vectorizer.transform(corpus)
+
+model = pipeline.Pipeline([("vectorizer", vectorizer),  
+                           ("classifier", classifier)])## train classifier
+model["classifier"].fit(X_train, y_train)
+
+X_test = dtf_test["Questions"].values
+y_test = dtf_test["Category2"].values
+
+predicted = model.predict(X_test)
+predicted_prob = model.predict_proba(X_test)
 
 
-
-
+metrics.accuracy_score(y_test, predicted) #0.4902200488997555
+```
 
 
 
