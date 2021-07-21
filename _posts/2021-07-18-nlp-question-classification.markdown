@@ -1,44 +1,106 @@
 ---
 layout: post
-title:  "Description d'image :  réseaux convolutifs et réccurents avec pytorch "
-date:   2021-04-18 11:20:25 +0100
-categories: computer_vision react python data_science
+title:  "Traitement du langage :  Comprendre le sens d'une question "
+date:   2021-07-18 11:20:25 +0100
+categories: nlp python data_science
 lang: fr
-ref: image_searcher
+ref: question_classif
 ---
 
 
-L'**image captioning**, un champ d'études de l'analyse d'images, se penche sur la capacité des algorithmes à décrire le contenu d'une image par un texte plus ou moins long.
+Lorsqu’on recherche une information dans de larges volumes de textes, la manière la plus répandue est l’utilisation de **mots clés**. Par exemple, si on cherche la date du début de la révolution industrielle, on peut chercher des termes susceptibles d’être présents dans des textes contenant la réponse cherchée : “révolution industrielle date” ou "révolution industrielle début”.
 
-La publication [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), de Kelvin Xu et Al, propose une architecture permettant d'associer à une image une phrase descriptive. Elle est constituée d'un réseau de neurones convolutif **(CNN)** et d'un réseau récurrent **(RNN)** permettant de générer des phrases cohérentes et en rapport avec l'image. On va ici décrire brièvement le fonctionnement d'une telle architecture, et tenter de produire à notre tour des descriptions.
+Mais certains moteurs de recherche sont capables d’interpréter des questions posées en langage naturel. Par exemple, si on tape dans la barre de recherche Google “Qui a écrit les misérables ?”, l’algorithme est en mesure de détecter que l’entité recherchée est un auteur, sans que le mot “auteur“ soit explicitement présent :
 
+![img1](/assets/images/question_classif/im1.png)
 
+Google utilise fréquemment WikiData, une base de données relationnelle où chaque entité est connectée à plusieurs autres en fonction de leurs rapports logiques. Connaître le type d’information recherchée au préalable facilite cette recherche.
 
-# Partie 1 : Le CNN
+Comment ces algorithmes arrivent-ils à saisir le sens d’une question ? On se propose ici de construire un programme avec le but suivant : Pour une question donnée, on veut trouver quelle est l’entité cherchée (un lieu ? une durée ? une distance ? une personne ?)  
 
-Une méthode traditionnelle de machine learning pour extraire les informations d'une image est l'utilisation de réseaux de neurones, et plus particulièrement les CNN. Ils appliquent des **convolutions** sur la surface de l'image, permettant d'y détecter des motifs de plus ou moins haut niveau, et d'associer ces motifs aux caratéristiques de tel ou tel objet. 
+# Une approche naïve : construire "à la main" des champs lexicaux 
 
-Lors de l'entrainement du réseau, celui-ci apprendra à la fois les caractéristiques des convolutions à appliquer, et à quel contenu associer ces motifs : visage, voiture, chat, etc ...
-
-
-
-L'architecture traditionnelle d'un CNN comprend plusieurs étapes successives de convolution/normalisation, suivies d'une couche dite **dense**, où tous les neurones sont connectés (située tout à droite sur le schéma): 
-![img1](/assets/images/img_captioning/im1.png)
-(source: [Kaggle.com](https://www.kaggle.com/cdeotte/how-to-choose-cnn-architecture-mnist))
-
-La taille de sortie de la **couche dense** correspond au nombre de classes que le réseau peut reconnaître. 
-
-Des CNN déja entrainés sur de grandes bases de données d'images sont disponibles sur Internet. Parmi eux, [AlexNet](https://papers.nips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf), un CNN entrainé sur la base d'images [ImageNet](http://www.image-net.org/) (1.2 millions d'images de 1000 classes différentes), et publiée en 2012, reste encore aujourd'hui un référence de modèle pré-entrainé.
+La première idée qui pourrait nous venir en tête serait de définir des règles basées sur les champs lexicaux des catégories : par exemple, si une question contient une des déclinaisons des verbes “écrire”, “rédiger”,  elle a de grandes chances de porter sur un auteur. Comment définir ces champs lexicaux ?
 
 
-Ici, nous ne voulons pas associer une image à telle ou telle catégorie, mais bien en rédiger une phrase descriptive. Même en limitant la taille maximum de la phrase, le nombre de phrases différentes possibles est beaucoup trop grand pour en associer chacune à un neurone de sortie de la couche finale.
+On va ici utiliser une base de données contenant 5452 questions, la base ![TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. 
 
-Xu et Al montrent qu'il est toutefois possible de se servir de la **capacité de représentation** d'un CNN entrainé pour accomplir cette tache. Ils utilisent les couches dédiées à la convolution/normalisation, nécéssaires pour extraire les caractéristiques de l'image, mais décident d'extraire le vecteur généré à la fin de celui-ci, et de ne pas utliser la dernière couche dédiée à la classification. 
+Chaque question, en anglais, est classée parmi 6 catégories :   
+ABBR (Abbreviation)
+DESC (Description and abstract concepts)
+ENTY (Entities)
+HUM (Human beings) 
+LOC (Locations) 
+NYM (Numeric values)
 
-**Chaque image est donc transformée en un vecteur I de taille fixe** :
+Et 50 sous-catégories, dont nous pouvons retrouver le détail ![ici](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
 
-![img7fr](/assets/images/img_captioning/im7fr.png)
- Ce vecteur contient un certain nombre d'informations sur l'image, même si il est ininterprétable tel quel. Xu et Al vont utiliser un autre réseau de neurones, un **RNN**, pour générer la phrase description à partir de ce vecteur.
+
+Regardons d'abord à quoi ressemble notre jeu de données :
+
+```python
+#On extrait la table du fichier csv gràce à la librairie pandas
+import pandas as pd
+data = pd.read_csv('/media/tidiane/D:/Dev/NLP/data/Question_Classification_Dataset.csv', encoding='latin-1')
+data
+```
+
+|      |                                         Questions |   Category0 | Category1 | Category2 |
+|-----:|--------------------------------------------------:|------------:|----------:|----------:|
+|   0  | How did serfdom develop in and then leave Russ... | DESCRIPTION | DESC      | manner    |
+|   1  | What films featured the character Popeye Doyle ?  | ENTITY      | ENTY      | cremat    |
+|  ... | ...                                               | ...         | ...       | ...       |
+| 5447 | What 's the shape of a camel 's spine ?           | ENTITY      | ENTY      | other     |
+| 5448 | What type of currency is used in China ?          | ENTITY      | ENTY      | currency  |
+| 5449 | What is the temperature today ?                   | NUMERIC     | NUM       | temp      |
+| 5450 | What is the temperature for cooking ?             | NUMERIC     | NUM       | temp      |
+| 5451 | What currency is used in Australia ?              | ENTITY      | ENTY      | currency  |
+
+
+Dans chaque catégorie, nous pouvons voir quels mots sont les plus utilisés : Ceux-ci sont les plus susceptibles de former un champ lexical cohérent.
+
+```python
+#On groupe les questions par catégorie 2 :
+data_group = data.groupby(['Category2'])['Questions'].apply(lambda x: ' '.join(x)).reset_index()
+
+
+#On transforme ensuite nos questions aggrégées en dictionnaire contenant la fréquence de chaque mot :
+
+def word_count(str):
+    counts = dict()
+    words = str.split()
+
+    for word in words:
+        if word in counts:
+            counts[word] += 1
+        else:
+            counts[word] = 1
+    counts = dict(sorted(counts.items(), key=lambda item: item[1], reverse=True))
+    return counts
+
+data_group['count'] = data_group['Questions'].apply(word_count)
+
+# Enfin, on affiche les 10 mots les plus fréquents de chaque catégorie :
+
+for i in range(len(data_group)) :
+    print(data_group.loc[i, "Category2"])
+    count = data_group.loc[i, "count"]
+    print(list(count.keys())[0:10], "\n")
+
+```
+compter la fréquence d’apparition des mots afin  d’estimer un champ lexical propre à la catégorie :
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Partie 2 : Le RNN
 
