@@ -5,6 +5,7 @@ date:   2021-07-18 11:20:25 +0100
 categories: nlp python data_science
 lang: fr
 ref: question_classif
+use_math: true
 ---
 
 
@@ -20,20 +21,13 @@ Comment ces algorithmes arrivent-ils à saisir le sens d’une question ? On se 
 
 # Une approche naïve : construire "à la main" des champs lexicaux 
 
-La première idée qui pourrait nous venir en tête serait de définir des règles basées sur les champs lexicaux des catégories : par exemple, si une question contient une des déclinaisons des verbes “écrire”, “rédiger”,  elle a de grandes chances de porter sur un auteur. Comment définir ces champs lexicaux ?
+La première idée qui pourrait nous venir en tête serait de définir des règles basées sur les champs lexicaux des catégories : par exemple, si une question contient une des déclinaisons des verbes “écrire”, “rédiger”,  elle a de grandes chances de porter sur un auteur. Comment généraliser cette idée et proposer un champ lexical pertient pour chaque catégorie ?
 
 
-On va ici utiliser une base de données contenant 5452 questions, la base ![TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. 
+On peut pour commencer définir clairement les catégories qu'on va utiliser. Pour ça, on peut se baser sur des phrases déja écrites et classées. 
 
-Chaque question, en anglais, est classée parmi 6 catégories :   
-ABBR (Abbreviation)
-DESC (Description and abstract concepts)
-ENTY (Entities)
-HUM (Human beings) 
-LOC (Locations) 
-NYM (Numeric values)
 
-Et 50 sous-catégories, dont nous pouvons retrouver le détail ![ici](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
+On va ici utiliser un jeu de données contenant 5452 questions, la base [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. Chaque question, en anglais, est classée parmi 6 catégories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**) et 50 sous-catégories, dont nous pouvons retrouver le détail [ici.](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
 
 
 Regardons d'abord à quoi ressemble notre jeu de données :
@@ -92,9 +86,89 @@ for i in range(len(data_group)) :
 
 *Les 10 termes apparaissant le plus souvent dans chaque catégorie*
 
-Nous allons, à partir de ces champs lexicaux créés, construire un classificateur de questions. L'idée est simple : Pour chaque mot de la phrase, nous allons calculer sa probabilité d'appartenir à chaque catégorie. 
+# Construction d'un classificateur
+
+
+On va, à partir de ces champs lexicaux créés, construire un classificateur de questions. L'idée est simple : Pour chaque mot de la phrase, nous allons calculer sa probabilité d'appartenir à chaque catégorie. 
+
+On va utiliser la méthode bayésienne :
+
+Imaginons que notre base de données se composent uniquement de 3 questions, chacune dans une catégorie différente. 
+
+--How many departments are there in France ?  **(count)**
+
+--Who is the current french president ?     **(ind)**
+
+--When did french people rebel against their king ?    **(date)**
+
+
+
+Voici une 4e phrase : How many people live in France ?
+
+Comment savoir à laquelle des 3 catégories elle appartient ?
+
+|             | count | ind | date |
+|-------------|-------|-----|------|
+| against     | 0     | 0   | 1    |
+| are         | 1     | 0   | 0    |
+| current     | 0     | 1   | 0    |
+| departments | 1     | 0   | 0    |
+| did         | 0     | 0   | 1    |
+| France      | 1     | 0   | 0    |
+| french      | 0     | 1   | 1    |
+| How         | 1     | 0   | 0    |
+| in          | 1     | 0   | 0    |
+| is          | 0     | 1   | 0    |
+| king        | 0     | 0   | 1    |
+| many        | 1     | 0   | 0    |
+| people      | 0     | 0   | 1    |
+| president   | 0     | 1   | 0    |
+| rebel       | 0     | 0   | 1    |
+| the         | 0     | 1   | 0    |
+| their       | 0     | 0   | 1    |
+| there       | 1     | 0   | 0    |
+| When        | 0     | 0   | 1    |
+| Who         | 0     | 1   | 0    |
+
+
+On veut calculer la probabilité que notre phrase appartienne à une catégorie donnée, par exemple la catégorie **count**, sachant qu'elle contient les mots "How many people are in France". On va noter cette probabilité $P(count/"How\ many\ people\ are\ in\ France")$
+
+le [théorème de bayes](https://fr.wikipedia.org/wiki/Th%C3%A9or%C3%A8me_de_Bayes) nous permet d'écrire l'équation suivante : 
+
+$P(count/"How\ many\ people\ are\ in\ France") = \frac{P("How\ many\ people\ are\ in\ France"/count) * P(count)}{P("How\ many\ people\ are\ in\ France")} $
+
+P(count/"How many people are in France") = P("How many people are in France"/count) * P(count) / P("How many people are in France")
+
+Puisque la phrase "How many people are in France" n'apparait pas dans notre jeu de données intial, on ne peut pas calculer 
+
+On fait l'hypothèse que l'apparition d'un mot est un phénomène indépendant de celle des autres mots. On peut décomposer la probabilité comme suivant: 
+
+Let us test some inline math $x$, $y$, $x_1$, $y_1$.
+
+$P(count/"How\ many\ people\ are\ in\ France")$
+
+P("How many people are in France"/**count**) = P("How"/**count**) * P("many"/**count**) * P("people"/**count**) * P("are"/**count**) * P("in"/**count**) * P("France"/**count**)
+
+Regardons maintenant chacune de ces expressions. P("How"/**count**) exprime la probabilité de rencontrer le mot "How" dans une question de catégorie **count**. Or, ce mot apparait 1 fois dans la catégorie, qui compte en tout 7 mots : P("How"/**count**) = 1/7
+
+Le mot "many" apparait également une fois sur 7 : P("many"/**count**) = 1/7
+
+Le mot "people" n'apparait pas dans la catégorie **count**. On va associer à cette probabilité une valeur arbitrairement petite, mais non nulle, pour éviter que le produit tombe à zéro. P("many"/**count**) = 10^⁻3
+
+et ainsi de suite. 
+
+En résumé , 
+
+
+
+
 
 ```python
+#On importe de la librairie sklearn des fonctions utiles au comptage des mots.
+
+from sklearn import feature_extraction, model_selection, naive_bayes, pipeline, manifold, preprocessing,feature_selection, metric
+
+
 dtf_train, dtf_test = model_selection.train_test_split(data, test_size=0.3)
 
 y_train = dtf_train["Category2"].values
@@ -122,10 +196,9 @@ predicted_prob = model.predict_proba(X_test)
 metrics.accuracy_score(y_test, predicted) #0.4902200488997555
 ```
 
+Notre classificateur est bon dans la moitié des cas environs.
 
 
+# Testing out latex
 
-
-
-
-# Partie 2 : Le RNN
+$$ \nabla_\boldsymbol{x} J(\boldsymbol{x}) $$
