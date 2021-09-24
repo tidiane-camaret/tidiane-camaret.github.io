@@ -236,4 +236,13 @@ Notre réseau a une couche cachée de taille égale à la dimension désirée de
 ![img4](/assets/images/question_classif/im4.png)
 
 
-On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau.
+On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau :
+
+```python
+
+```
+![img5](/assets/images/question_classif/im5.png)
+
+
+
+{% include word_vectors_graph.html%}
