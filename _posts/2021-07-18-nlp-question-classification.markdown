@@ -455,11 +455,31 @@ Ici aussi, on remarque des similarités entre des mots proches. On va tenter de 
 # Utilisation des word vectors pour notre classification
 
 
-Dans le même esprit que les word embeddings, plusieurs travaux se penchent sur les **embeddings de phrases**
-
-[Arora et al.](https://openreview.net/pdf?id=SyK00v5xx) décrivent plusieurs méthodes pour créer ces embeddings de phrases, mais soulignent aussi que la méthode consistant à  **prendre la moyenne des embeddings des mots de la phrase** donne des résultats satisfaisants. C'est ce qu'on va essayer ici :
+Dans le même esprit que les word embeddings, plusieurs travaux se penchent sur les **embeddings de phrases**, et sur la possibilité de saisir leur sens à travers des vecteurs. [Arora et al.](https://openreview.net/pdf?id=SyK00v5xx) décrivent plusieurs méthodes pour créer ces embeddings de phrases, mais soulignent aussi que la méthode consistant à  **prendre la moyenne des embeddings des mots de la phrase** donne des résultats satisfaisants. C'est ce qu'on va essayer ici :
 
 ```python
+def sentence_mean(sentence):
+    array_vect = [np.array([0,0,0])]
+    for i in range(len(sentence)):
+        if sentence[i] in embedding_dict.keys():
+            array_vect.append(embedding_dict[sentence[i]])
+        #else : 
+        #    array_vect.append(np.array([0,0,0]))
+            
+    return np.array(sum(array_vect)/max(1,len(array_vect)))
+
+
+from nltk.tokenize import word_tokenize
+data['processed_text'] = data["Questions"].str.lower().replace(r"[^a-zA-Z ]+", "")
+
+data['vec'] = data['processed_text'].apply(lambda x: word_tokenize(x))
+
+data['mean_vec'] = data['vec'].apply(lambda x: sentence_mean(x))
+
+data['x'] = data['mean_vec'].apply(lambda x: x[0])
+data['y'] = data['mean_vec'].apply(lambda x: x[1])
+data['z'] = data['mean_vec'].apply(lambda x: x[2])
 
 ```
 
+On a associé ici à chaque question la moyenne des embeddings 3d des mots qui la composent. On peut donc sur un graphique associer un point à chaque phrase, en marquant d'une couleur la catégorie à laquelle elle appartient : 
