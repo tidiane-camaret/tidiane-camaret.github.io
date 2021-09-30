@@ -482,4 +482,8 @@ data['z'] = data['mean_vec'].apply(lambda x: x[2])
 
 ```
 
-On a associé ici à chaque question la moyenne des embeddings 3d des mots qui la composent. On peut donc sur un graphique associer un point à chaque phrase, en marquant d'une couleur la catégorie à laquelle elle appartient : 
+On a associé ici à chaque question la moyenne des embeddings 3d des mots qui la composent. On peut donc sur un graphique associer un point à chaque phrase : 
+
+{% include question_classif/sentence_vectors_cat1.html%}
+
+On a aussi classé ici les questions par couleur, selon leur catégorie de premier niveau. (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**). On peut remarquer que les catégories forment des groupes distincts
