@@ -288,7 +288,7 @@ data_loader = data.DataLoader(dataset=dataset,
 
 On va maintenant pouvoir constuire notre architecture :
 
-Pour le CNN, on se base sur le réseau [resnet50](https://arxiv.org/abs/1512.03385), déja inclus dans la librairie `torchvision`. Comme indiqué précédemment, on retire la dernière couche du réseau, pour la remplacer par une couche de taille de sortie 256. Le vecteur **I** représentatif de chaque image aura donc cette image.
+Pour le CNN, on se base sur le réseau [resnet50](https://arxiv.org/abs/1512.03385), déja inclus dans la librairie `torchvision`. Comme indiqué précédemment, on retire la dernière couche du réseau, pour la remplacer par une couche de taille de sortie 256. Le vecteur **I** représentatif de chaque image aura donc cette taille.
 
 ```python
 import torch.nn as nn

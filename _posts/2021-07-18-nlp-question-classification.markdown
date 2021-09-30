@@ -172,7 +172,7 @@ C'est cette idée d'inférence bayésienne que nous allons utiliser pour constru
 
 # Construction d'un classificateur bayésien
 
-Nous allons diviser notre base de questions en deux. Une partie servira à entrainer notre modèle, et l'autre à évaluer ses performances. C'est une pratique courante qui évite d'évaluer un modèle sur une phrase sur lequel il a été entrainé, chose qui biaiserait nos résultats. 
+Nous allons diviser notre base de questions en deux. Une partie servira à entrainer notre modèle, et l'autre à évaluer ses performances. C'est une pratique courante qui évite d'évaluer un modèle sur une phrase sur laquelle il a été entrainé, chose qui biaiserait nos résultats. 
 
 ```python
 #On importe de la librairie sklearn des fonctions utiles au comptage des mots.
@@ -236,13 +236,230 @@ Notre réseau a une couche cachée de taille égale à la dimension désirée de
 ![img4](/assets/images/question_classif/im4.png)
 
 
-On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau :
+On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau : On va créer des paires de mots (x,y), y étant le mot à prédire, et x un mot "voisin". Nous considérons ici comme mot voisin de y tout mot apparaissant dans la même phrase et éloigné de 4 mots au plus. 
+
+```python
+import itertools
+import pandas as pd
+import numpy as np
+import re
+import os
+from tqdm import tqdm
+
+# Drawing the embeddings
+import matplotlib.pyplot as plt
+
+# Deep learning: 
+from keras.models import Input, Model
+from keras.layers import Dense
+
+from scipy import sparse
+
+
+texts = [x for x in data['Questions']]
+
+# Defining the window for context
+window = 4
+
+import re
+import numpy as np
+
+
+def text_preprocessing(
+    text:list,
+    punctuations = r'''!()-[]{};:'"\,<>./?@#$%^&*_“~''',
+    stop_words = [ "a", "the" , "to" ]
+    )->list:
+    """
+    A method to preproces text
+    """
+    for x in text.lower(): 
+        if x in punctuations: 
+            text = text.replace(x, "")
+
+    # Removing words that have numbers in them
+    text = re.sub(r'\w*\d\w*', '', text)
+
+    # Removing digits
+    text = re.sub(r'[0-9]+', '', text)
+
+    # Cleaning the whitespaces
+    text = re.sub(r'\s+', ' ', text).strip()
+
+    # Setting every word to lower
+    text = text.lower()
+
+    # Converting all our text to a list 
+    text = text.split(' ')
+
+    # Droping empty strings
+    text = [x for x in text if x!='']
+
+    # Droping stop words
+    text = [x for x in text if x not in stop_words]
+
+    return text
+
+def word_count(str):
+    counts = dict()
+    words = str.split()
+
+    for word in words:
+        if word in counts:
+            counts[word] += 1
+        else:
+            counts[word] = 1
+
+    return counts
+
+
+word_lists = []
+all_text = []
+
+for text in texts:
+
+    # Cleaning the text
+    text = text_preprocessing(text)
+
+    # Appending to the all text list
+    all_text += text 
+
+    # Creating a context dictionary
+    for i, word in enumerate(text):
+        for w in range(window):
+            # Getting the context that is ahead by *window* words
+            if i + 1 + w < len(text): 
+                word_lists.append([word] + [text[(i + 1 + w)]])
+            # Getting the context that is behind by *window* words    
+            if i - w - 1 >= 0:
+                word_lists.append([word] + [text[(i - w - 1)]])
+
+frequencies = {}
+
+for item in all_text:
+
+    if item in frequencies:
+
+        frequencies[item] += 1
+
+    else:
+
+        frequencies[item] = 1
+```
+*word_lists* est une liste des paires (mot voisin, mot à prédire) trouvées dans le texte. On y enlever les mots trop peu communs, susceptibles de perturber la performance du modèle :
+
+
+```python
+word_lists = [item for item in word_lists if frequencies[item[0]]>20 and frequencies[item[1]]>20]
+```
+
+
+
+On va ensuite créer deux vecteurs, X et Y, contenant respectivement la liste des mots voisins et des mots à prédire, encodés sous forme **one-hot**. 
+Celà signifie que chaque vecteur est de taille N (= taille du vocabulaire total) et contient un 1 à la position correspondant au mot codé, le reste du vecteur étant à zéro.  
+
+
+
+![img6](/assets/images/question_classif/im6.png)
+
+
+
+```python
+dict_short = {}
+j = 0
+for i, word in enumerate(word_lists):
+    if word[0] not in dict_short : 
+        dict_short.update({ word[0]: j  })
+        j=j+1
+        
+n_words_short = len(dict_short)
+
+# Creating the X and Y matrices using one hot encoding
+X = []
+Y = []
+
+words = list(dict_short.keys())
+
+for i, word_list in tqdm(enumerate(word_lists)):
+    # Getting the indices
+    main_word_index = dict_short.get(word_list[0])
+    context_word_index = dict_short.get(word_list[1])
+
+    # Creating the placeholders   
+    X_row = np.zeros(n_words_short)
+    Y_row = np.zeros(n_words_short)
+
+    # One hot encoding the main word
+    X_row[main_word_index] = 1
+
+    # One hot encoding the Y matrix words 
+    Y_row[context_word_index] = 1
+
+    # Appending to the main matrices
+    X.append(X_row)
+    Y.append(Y_row)
+```
+
+Le format des objets X et Y nous permet maintenant d'entrainer un réseau de neurones : 
+
+```python
+import tensorflow as tf
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(2, activation='softmax'),
+    tf.keras.layers.Dense( n_words_short) #(len(unique_word_dict))
+])
+
+
+model.compile(loss = 'categorical_crossentropy', optimizer = 'adam')
+
+model.fit(x=np.array(X), y=np.array(Y), epochs=10)
+```
+
+On peut maintenant visualiser nos embeddings en 2 dimensions : 
+
+```python
+import random
+weights = model.get_weights()[0]
+
+# Creating a dictionary to store the embeddings in. The key is a unique word and 
+# the value is the numeric vector
+embedding_dict = {}
+for word in words: 
+    embedding_dict.update({
+        word: weights[dict_short.get(word)]
+        })
+
+# Ploting the embeddings
+plt.figure(figsize=(10, 10))
+for word in list(dict_short.keys()):
+    coord = embedding_dict.get(word)
+    plt.scatter(coord[0], coord[1])
+    plt.annotate(word, (coord[0], coord[1]))   
+
+```
+
+{% include question_classif/word_vectors_2d.html%}
+
+
+On peut remarquer que plusieurs mots apparentés sont relativement proches (dog/animal, day/year, city/capital). Mais il est difficile d'y trouver un cohérence globale.
+
+
+On peut également créer des embeddings de dimensions supérieures : Pour ça, on doit changer la taille de la couche cachée de notre réseau.
+Une plus grande dimension d'embeddings permet au réseau de former des structures sémantiques plus complexes entre les différents mots. Voilà des embeddings entrainés sur le même texte, mais en 3 dimensions : 
+
+{% include question_classif/word_vectors_3d.html%}
+
+Ici aussi, on remarque des similarités entre des mots proches. On va tenter de se servir de notre structure d'embeddings pour classifier nos questions. 
+
+# Utilisation des word vectors pour notre classification
+
+
+Dans le même esprit que les word embeddings, plusieurs travaux se penchent sur les **embeddings de phrases**
+
+[Arora et al.](https://openreview.net/pdf?id=SyK00v5xx) décrivent plusieurs méthodes pour créer ces embeddings de phrases, mais soulignent aussi que la méthode consistant à  **prendre la moyenne des embeddings des mots de la phrase** donne des résultats satisfaisants. C'est ce qu'on va essayer ici :
 
 ```python
 
 ```
-![img5](/assets/images/question_classif/im5.png)
 
-
-
-{% include word_vectors_graph.html%}
