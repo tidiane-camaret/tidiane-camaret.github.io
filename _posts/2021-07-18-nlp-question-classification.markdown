@@ -249,7 +249,7 @@ Une version simplifiée du modèle a été mise ci-dessus. On a en entrée le mo
 A la fin de l'entrainement du réseau, on espère que les mots de sens similaires mèneront aux mêmes prédictions de mots voisins, et auront donc des activations de couche cachée similaires : c'est ces valeurs d'activations que nous considererons par la suite comme nos embeddings.
 
 
-On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau : On va créer des paires de mots $(x,y)$, $y$ étant le mot à prédire, et $x$ un mot "voisin". Nous considérons ici comme mot voisin de y tout mot apparaissant dans la même phrase et éloigné de 4 mots au plus. 
+On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau : On va créer des paires de mots $(x,y)$, $y$ étant le mot à prédire, et $x$ un mot "voisin". Nous considérons ici comme mot voisin de $y$ tout mot apparaissant dans la même phrase et éloigné de 4 mots au plus. 
 
 ```python
 import itertools
@@ -569,14 +569,11 @@ neigh.fit(X_train, y_train)
 score = neigh.score(X_test, y_test)
 score
 ```
-Le score de classification est cette fois-ci de **0.675** pour la classe 1 (pour rappel, 6 catégories), et **0.567** pour la catégorie 2 (50 catégories), ce qui est bien supérieur à notre précédente méthode.
+Le score de classification est cette fois-ci de **0.675** pour la classe 1 (pour rappel, 6 catégories), et **0.567** pour la catégorie 2 (50 catégories). Il est encore assez bas vis-à-vis de l'état de l'art en classification, mais déja supérieur à notre précédente méthode.
 
-On remarque quand même qu'au delà de la classification, nos embeddings ont réussi a modéliser la sémantique de nos questions : les phrases voisines ont systématiquement un sens proche. On pourrait par exemple se servir de se modèle pour construire 
+On remarque quand même qu'au delà de la classification, nos embeddings ont réussi a modéliser la sémantique de nos questions : les phrases voisines ont systématiquement un sens proche. On pourrait par exemple se servir de se modèle pour construire un moteur de recherche de questions sur un forum d'entraide. 
 
-Pour améliorer encore notre classificateur, on pourrait notamment utiliser des méthodes plus sophistiquées que la moyenne pour nos sentences embeddings.
-
-
-[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de **réseaux réccurents** pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
+Pour améliorer encore notre classificateur, on pourrait notamment utiliser des méthodes plus sophistiquées que la moyenne pour nos sentences embeddings :[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de **réseaux réccurents** pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
 
 [Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la **convolution**, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html), et l'autre basée sur les **transformers**, des réseaux basés sur l'attention, et dont on parlera peut être prochainement. 
 
