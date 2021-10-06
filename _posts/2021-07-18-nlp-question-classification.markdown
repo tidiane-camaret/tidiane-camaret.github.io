@@ -210,7 +210,7 @@ metrics.accuracy_score(y_test, predicted) #0.4902200488997555
 
 Notre classificateur a un taux de bonnes réponses d'environ **49%**, ce qui est assez faible. Il faut cependant mettre ce résultat en perspective avec le fait que nous avons 50 catégories : le pur hasard nous donnerait un taux de réussite de 2% seulement.
 
-Pour la classe 1, qui compte seulement 6 catégories, la précision est de **48_,5%**
+Pour la classe 1, qui compte seulement 6 catégories, la précision est de **48,5%**.
 
 
 # Une approche prenant en compte la structure du language : les word vectors
@@ -249,7 +249,7 @@ Une version simplifiée du modèle a été mise ci-dessus. On a en entrée le mo
 A la fin de l'entrainement du réseau, on espère que les mots de sens similaires mèneront aux mêmes prédictions de mots voisins, et auront donc des activations de couche cachée similaires : c'est ces valeurs d'activations que nous considererons par la suite comme nos embeddings.
 
 
-On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau : On va créer des paires de mots (x,y), y étant le mot à prédire, et x un mot "voisin". Nous considérons ici comme mot voisin de y tout mot apparaissant dans la même phrase et éloigné de 4 mots au plus. 
+On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau : On va créer des paires de mots $(x,y)$, $y$ étant le mot à prédire, et $x$ un mot "voisin". Nous considérons ici comme mot voisin de y tout mot apparaissant dans la même phrase et éloigné de 4 mots au plus. 
 
 ```python
 import itertools
@@ -578,8 +578,8 @@ Pour améliorer encore notre classificateur, on pourrait notamment utiliser des 
 
 [Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de **réseaux réccurents** pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
 
-[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la **convolution**, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html)et l'autre basée sur les **transformers**, des réseaux basés sur l'attention, et dont on parlera peut être prochainement. 
+[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la **convolution**, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html), et l'autre basée sur les **transformers**, des réseaux basés sur l'attention, et dont on parlera peut être prochainement. 
 
 
 
-Le code utilisé dans cet article est disponible [ici](https://colab.research.google.com/drive/12z1rFOOqmViCzdSlWvELyVD-mi-o7n6U?usp=sharing) 
+Le code utilisé dans cet article est disponible [ici.](https://colab.research.google.com/drive/12z1rFOOqmViCzdSlWvELyVD-mi-o7n6U?usp=sharing) 
