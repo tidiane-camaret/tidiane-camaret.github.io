@@ -486,4 +486,59 @@ On a associé ici à chaque question la moyenne des embeddings 3d des mots qui l
 
 {% include question_classif/sentence_vectors_cat1.html%}
 
-On a aussi classé ici les questions par couleur, selon leur catégorie de premier niveau. (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**). On peut remarquer que les catégories forment des groupes distincts
+On a aussi classé ici les questions par couleur, selon leur catégorie. Il serait illisible d'afficher les 50 sous-catégories, on montre donc les 6 catégories de premier niveau. (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**). 
+
+
+Il n'y a pas de séparation marquée entre les catégories, mais on peut déja remarquer des agglomérations de phrases de même catégorie à certains endroits. Si les groupes étaient plus marqués, ce serait alors plus facile de classifier une phrase en fonction du groupe de points auquel son embedding appartient.
+
+Pour affiner notre outil de classification, on va utiliser des word embeddings de mots plus performants, car déja entrainés sur un corpus beaucoup plus large : les [Glove](https://nlp.stanford.edu/projects/glove/)
+
+Ces vecteurs sont produits de la même manière qu'expliquée précédemment, mais sont de dimension 50, et sont entrainées la totalité du contenu anglais de wikipédia (2014), un corpus d' 1,6 milliards de mots.
+
+```python
+import gensim.downloader
+glove_model = gensim.downloader.load('glove-wiki-gigaword-50')
+
+
+def sentence_mean_glove(sentence):
+    array_vect = []
+    for i in range(min(4,len(sentence))):
+        if sentence[i] in glove_model.key_to_index.keys():
+            array_vect.append(glove_model[sentence[i]])
+    return sum(array_vect)/len(array_vect)
+
+data['mean_vec_glove'] = data['vec'].apply(lambda x: sentence_mean_glove(x))
+
+```
+
+Chaque question est maintenant représentée par un vecteur de taille 50. Pour pouvoir visualiser ces vecteurs, nous allons réduire leurs dimensions avec l'agortihme [t-sne](https://datascientest.com/comprendre-lalgorithme-t-sne-en-3-etapes) :
+
+```python
+from sklearn.manifold import TSNE
+sentence_vec_tsne = TSNE(n_components=3).fit_transform(data['mean_vec_glove'].tolist())
+```
+
+On va maintenant pouvoir afficher notre nuage de points : 
+
+```python
+import plotly.graph_objects as go
+fig = go.Figure(data=[go.Scatter3d(
+    x=[a[0] for a in sentence_vec_tsne], # ie [0, 1, 2, 3]
+    y=[a[1] for a in sentence_vec_tsne], # ie [0, 1, 2, 3]
+    z=[a[2] for a in sentence_vec_tsne], # ie [0, 1, 2, 3]
+    hovertemplate='<b>%{text}</b><extra></extra>',
+    text = data["Questions"],
+    mode='markers',
+    marker=dict(
+        size=3,
+        opacity=0.8,
+        color=data['Category1'].map(col_dict),
+    )
+)])
+
+fig.show()
+```
+
+{% include question_classif/sentence_vectors_cat1_glove.html%}
+
+On peu
