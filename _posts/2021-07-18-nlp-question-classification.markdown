@@ -9,7 +9,7 @@ use_math: true
 ---
 
 
-Si on recherche une information précise dans de larges volumes de textes, une manière qui peut nous venir à l'esprit est d'utiliser des **mots clés** : Par exemple, si on cherche le nom de l'auteur **des Misérables**, on peut d'abord séléctionner un texte traitant de la littérature française en général, puis chercher à l'interieur de ce texte des termes susceptibles d’être à proximité de la réponse cherchée : **“Misérables auteur”** ou **"Misérables écrivain”**.
+Si on recherche une information précise dans de larges volumes de textes, une manière qui peut nous venir à l'esprit est d'utiliser des **mots clés** : Par exemple, si on cherche le nom de l'auteur **des Misérables**, on peut d'abord trouver un texte traitant de la littérature française en général, puis chercher à l'interieur de ce texte des termes susceptibles d’être à proximité de la réponse cherchée : **“Misérables auteur”** ou **"Misérables écrivain”**.
 
 Mais certains moteurs de recherche sont capables d’interpréter des questions posées en langage naturel. Par exemple, si on tape dans la barre de recherche Google “Qui a écrit les misérables ?”, l’algorithme est en mesure de détecter que l’entité recherchée est un auteur, sans que le mot “auteur“ soit explicitement présent :
 
@@ -89,8 +89,7 @@ for i in range(len(data_group)) :
 # Utilisation de l'inférence bayésienne
 
 
-On va, à partir de ces champs lexicaux créés, construire un classificateur de questions, à partir de la [méthode bayésienne](https://fr.wikipedia.org/wiki/Inf%C3%A9rence_bay%C3%A9sienne). L'idée est simple : Nous allons calculer, pour chaque mot de la phrase, les probabilités d'appartenir à chaque catégorie, puis en déduire les probabilités pour la phrase entière.
-
+On va, à partir de ces champs lexicaux créés, construire un classificateur de questions, à partir de la [méthode bayésienne](https://fr.wikipedia.org/wiki/Inf%C3%A9rence_bay%C3%A9sienne). L'idée est simple : On va calculer les probabilités, pour chaque mot de la phrase, puis pour la phrase entière, d'appartenir à chaque catégorie. 
 
 
 Imaginons pour le moment que notre base de données se composent uniquement de 3 questions, chacune dans une catégorie différente : 
@@ -101,7 +100,7 @@ Imaginons pour le moment que notre base de données se composent uniquement de 3
 
 --When did french people rebel against their king ?    **(date)**
 
-On peut en tirer un tableau listant la fréquence d'apparition des termes dans chaque catégorie : 
+On va d'abord lister la fréquence d'apparition de chaque terme dans chaque catégorie : 
 
 |             | count | ind | date |
 |-------------|-------|-----|------|
@@ -129,7 +128,7 @@ On peut en tirer un tableau listant la fréquence d'apparition des termes dans c
 
 Voici une 4e phrase : **How many people live in France ?**
 
-Pouvons nous savoir, à partir de nos trois phrases précédentes, à quelle catégorie elle appartient ?
+Pouvons nous savoir, à partir de nos trois phrases précédentes, à quelle catégorie celle-ci appartient ?
 
 
 
@@ -148,7 +147,7 @@ Notre jeu de données est bien trop réduit pour obtenir directement cette proba
 $P("How\ many\ people\ are\ in\ France"/count) = P("How"/count) * P("many"/count) * P("people"/count) * P("are"/count) * P("in"/count) * P("France"/count)$
 
 
-Regardons maintenant chacune de ces expressions : $P("How"/**count**)$ exprime la probabilité de rencontrer le mot "How" dans une question de catégorie **count**. Or, ce mot apparait 1 fois dans la catégorie, qui compte en tout 7 mots (on peut se référer au tableau présenter plus haut) : $P("How"/count) = 1/7$
+Regardons maintenant chacune de ces expressions : $P("How"/count)$ exprime la probabilité de rencontrer le mot "How" dans une question de catégorie **count**. Or, ce mot apparait 1 fois dans la catégorie, qui compte en tout 7 mots (on peut se référer au tableau présenté plus haut) : $P("How"/count) = 1/7$
 
 Le mot "many" apparait également une fois sur 7 : $P("many"/count) = 1/7$
 
@@ -217,23 +216,34 @@ Notre modèle bayésien, s'il fait mieux que le pur hasard, possède une désava
 
 Or, certains mots possèdent une proximité sémantique : les différentes conjuguaisons d'un même verbe, ou les noms de lieu, par exemple. Cette proximité n'est pas modélisée par notre approche, qui considère les mots comme des variables n'ayant aucun rapport entre elles.
 
-L'utilisation de **word vectors** fait correspondre chaque **mot** à **un point dans un espace continu**, le plus souvent multidimensionnel. Ce procédé s'appelle **l'embedding**. 
-
-Représenter les mots dans un tel espace permet de représenter la structure du language utilisé : les mots partageant un sens ou un attribut peuvent être placés proches les uns des autres. 
-
-![img3](/assets/images/question_classif/im3.jpg)
-
-Plusieurs méthodes existent pour produire des embeddings cohérents, et la plupart exploitent les co-occurences de mots dans des corpus de textes existants. L'hypothèse de base de ces méthodes est que des mots qui apparaissent dans des voisinages de mots similaires ont plus de chance de partager des attributs. Par exemple, les mots apparaisant après un pronom personnel ont de grandes chances d'être des verbes. 
+Le concept d'**embedding** fait correspondre chaque **mot** à **un point dans un espace continu**, le plus souvent multidimensionnel. 
 
 
-Nous allons tenter de construire nos propres embeddings, en suivant la méthode **Continuous bag-of-words (CBOW)**, proposée par [Mikolov](https://arxiv.org/pdf/1301.3781.pdf). Cette méthode consiste à entrainer un **réseau de neurones** à prédire un mot à partir de ses mots voisins. 
-
-Pour celà, nous allons exploiter notre base de données de questions. Notre réseau prendra en entrée un mot d'une question, et il devra correctement prédire un mot de son voisinage. 
-
-Notre réseau a une couche cachée de taille égale à la dimension désirée de notre espace d'embeddings. A la fin de l'entrainement du réseau, on espère que les mots de sens similaires mèneront aux mêmes prédictions de mots voisins, et auront donc des activations de couche cachée similaires : c'est ces valeurs d'activations que nous considererons par la suite comme nos embeddings.
+Voilà un exemple d'embeddings de 34 mots, en deux dimensions :
 
 
-![img4](/assets/images/question_classif/im4.png)
+<img src="/assets/images/question_classif/im3.jpg" 
+alt="word vec examples" 
+height="400"/>
+
+
+On remarque que les mots de sens proche sont souvent à coté, et qu'ils forment même des groupes sémantiques cohérents. Et c'est précisément pour ça que cette méthode est intéressante : elle permet de représenter la structure du language utilisé, et permet de faciliter la tâche de certains algorithmes de traitement du language. 
+
+Mais alors, comment produire des embeddings ? La plupart des méthodes exploitent des corpus de textes existants. L'hypothèse de base de ces méthodes est que des mots qui apparaissent souvent dans des voisinages de mots similaires ont plus de chance de partager des attributs. Par exemple, les mots apparaisant après un pronom personnel ont de grandes chances d'être des verbes.
+
+
+Nous allons tenter de construire nos propres embeddings, en suivant la méthode **Continuous bag-of-words (CBOW)**, proposée par [Mikolov](https://arxiv.org/pdf/1301.3781.pdf). Cette méthode consiste à entrainer un **réseau de neurones** possédant une couche cachée à prédire un mot à partir de ses mots voisins. 
+
+Pour celà, on va exploiter notre base de données de questions. Notre réseau prendra en entrée un mot d'une question, et il devra correctement prédire un mot de son voisinage. 
+
+
+<img src="/assets/images/question_classif/im4-2.png" 
+alt="neural network" 
+height="400"/>
+
+Une version simplifiée du modèle a été mise ci-dessus. On a en entrée le mot "the", et dans la couche d'entrée, le neurone correspondant à ce mot est activée. On va entrainer le réseau à prédire un mot voisin, ici le mot "man".
+
+A la fin de l'entrainement du réseau, on espère que les mots de sens similaires mèneront aux mêmes prédictions de mots voisins, et auront donc des activations de couche cachée similaires : c'est ces valeurs d'activations que nous considererons par la suite comme nos embeddings.
 
 
 On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau : On va créer des paires de mots (x,y), y étant le mot à prédire, et x un mot "voisin". Nous considérons ici comme mot voisin de y tout mot apparaissant dans la même phrase et éloigné de 4 mots au plus. 
@@ -541,4 +551,24 @@ fig.show()
 
 {% include question_classif/sentence_vectors_cat1_glove.html%}
 
-On peu
+On peut remarquer que les groupes sont bien plus marqués. On va se servir de ces groupements pour construire un classificateur. Le principe est simple : Pour une question donnée, on va calculer son **sentence embedding**, et décider que sa classe est celle de la phrase dont elle est la plus proche. 
+
+```python
+X = data['mean_vec_glove'].tolist()
+y = data['Category2'].tolist()
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test =   train_test_split(X, y, test_size=.4, random_state=42)
+
+from sklearn.neighbors import KNeighborsClassifier
+neigh = KNeighborsClassifier(n_neighbors=1)
+neigh.fit(X_train, y_train)
+score = neigh.score(X_test, y_test)
+score
+```
+Le score est cette fois-ci de 0.567, ce qui est légèrement supérieur à notre précédente méthode.
+Pour améliorer encore notre classificateur, on pourrait notamment utiliser des méthodes plus sophistiquées que la moyenne pour nos sentences embeddings.
+
+[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de réseaux réccurents pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
+
+[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la convolution, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html)et l'autre basée sur les transformers, des réseaux basés sur l'attention, et dont on parlera peut être dans un prochain article. 
