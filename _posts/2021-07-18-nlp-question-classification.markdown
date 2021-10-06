@@ -8,6 +8,7 @@ ref: question_classif
 use_math: true
 ---
 
+{% include _mathjax_support.html%}
 
 Si on recherche une information précise dans de larges volumes de textes, une manière qui peut nous venir à l'esprit est d'utiliser des **mots clés** : Par exemple, si on cherche le nom de l'auteur **des Misérables**, on peut d'abord trouver un texte traitant de la littérature française en général, puis chercher à l'interieur de ce texte des termes susceptibles d’être à proximité de la réponse cherchée : **“Misérables auteur”** ou **"Misérables écrivain”**.
 
@@ -134,7 +135,7 @@ Pouvons nous savoir, à partir de nos trois phrases précédentes, à quelle cat
 
 Essayons par exemple de calculer la probabilité que notre phrase appartienne à la catégorie **count**, sachant qu'elle contient les mots "How many people are in France". On va noter cette probabilité $P(count/"How\ many\ people\ are\ in\ France")$
 
-Le [théorème de bayes](https://fr.wikipedia.org/wiki/Th%C3%A9or%C3%A8me_de_Bayes) nous permet d'écrire l'équation suivante : 
+Le [théorème de Bayes](https://fr.wikipedia.org/wiki/Th%C3%A9or%C3%A8me_de_Bayes) nous permet d'écrire l'équation suivante : 
 
 $P(count/"How\ many\ people\ are\ in\ France") = \frac{P("How\ many\ people\ are\ in\ France"/count) * P(count)}{P("How\ many\ people\ are\ in\ France")} $
 
