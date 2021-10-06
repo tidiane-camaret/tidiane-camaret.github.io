@@ -24,10 +24,10 @@ Comment ces algorithmes arrivent-ils à saisir le sens d’une question, et à s
 La première idée qui pourrait nous venir en tête serait de définir des règles basées sur les champs lexicaux des mots de la question : par exemple, si celle-ci contient une des déclinaisons des verbes “écrire”, “rédiger”,  elle a de grandes chances de porter sur un auteur. Comment généraliser cette idée et proposer un champ lexical pertient pour chaque catégorie de question?
 
 
-On peut, pour commencer, définir clairement les catégories dans lesquelles on va classer les questions. Pour ça, on peut se baser sur des phrases déja écrites et classées. 
+On peut, pour commencer, définir clairement les catégories dans lesquelles on va classer les questions. Pour ça, on peut se baser sur des catégories déja existantes.
 
 
-On va ici utiliser un jeu de données contenant 5452 questions, la base [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. Chaque question, en anglais, est classée parmi 6 catégories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**) et 50 sous-catégories, dont nous pouvons retrouver le détail [ici.](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
+On va ici utiliser un jeu de données pré-existant contenant 5452 questions, la base [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. Chaque question, en anglais, est classée parmi 6 catégories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**) et 50 sous-catégories, dont nous pouvons retrouver le détail [ici.](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
 
 
 Regardons d'abord à quoi ressemble notre jeu de données :
@@ -207,7 +207,9 @@ predicted_prob = model.predict_proba(X_test)
 metrics.accuracy_score(y_test, predicted) #0.4902200488997555
 ```
 
-Notre classificateur a une précision d'environ 49%, ce qui est assez faible. Il faut cependant mettre ce résultat en perspective avec le fait que nous avons 50 catégories : le pur hasard nous donnerait un taux de réussite de 2% seulement.
+Notre classificateur a un taux de bonnes réponses d'environ **49%**, ce qui est assez faible. Il faut cependant mettre ce résultat en perspective avec le fait que nous avons 50 catégories : le pur hasard nous donnerait un taux de réussite de 2% seulement.
+
+Pour la classe 1, qui compte seulement 6 catégories, la précision est de **48_,5%**
 
 
 # Une approche prenant en compte la structure du language : les word vectors
@@ -227,7 +229,7 @@ alt="word vec examples"
 height="400"/>
 
 
-On remarque que les mots de sens proche sont souvent à coté, et qu'ils forment même des groupes sémantiques cohérents. Et c'est précisément pour ça que cette méthode est intéressante : elle permet de représenter la structure du language utilisé, et permet de faciliter la tâche de certains algorithmes de traitement du language. 
+On remarque que les mots de sens proche sont souvent à coté, et qu'ils forment même des groupes sémantiques cohérents. Et c'est précisément pour ça que cette méthode est intéressante : elle permet de représenter la structure du language utilisé, et faciliter la tâche de certains algorithmes de traitement du language. 
 
 Mais alors, comment produire des embeddings ? La plupart des méthodes exploitent des corpus de textes existants. L'hypothèse de base de ces méthodes est que des mots qui apparaissent souvent dans des voisinages de mots similaires ont plus de chance de partager des attributs. Par exemple, les mots apparaisant après un pronom personnel ont de grandes chances d'être des verbes.
 
@@ -241,7 +243,7 @@ Pour celà, on va exploiter notre base de données de questions. Notre réseau p
 alt="neural network" 
 height="400"/>
 
-Une version simplifiée du modèle a été mise ci-dessus. On a en entrée le mot "the", et dans la couche d'entrée, le neurone correspondant à ce mot est activée. On va entrainer le réseau à prédire un mot voisin, ici le mot "man".
+Une version simplifiée du modèle a été mise ci-dessus. On a en entrée le mot "the": dans la couche d'entrée, le neurone correspondant à ce mot est activée. On va entrainer le réseau à prédire un mot voisin, ici le mot "man".
 
 A la fin de l'entrainement du réseau, on espère que les mots de sens similaires mèneront aux mêmes prédictions de mots voisins, et auront donc des activations de couche cachée similaires : c'est ces valeurs d'activations que nous considererons par la suite comme nos embeddings.
 
@@ -566,9 +568,17 @@ neigh.fit(X_train, y_train)
 score = neigh.score(X_test, y_test)
 score
 ```
-Le score est cette fois-ci de 0.567, ce qui est légèrement supérieur à notre précédente méthode.
+Le score de classification est cette fois-ci de **0.675** pour la classe 1 (pour rappel, 6 catégories), et **0.567** pour la catégorie 2 (50 catégories), ce qui est bien supérieur à notre précédente méthode.
+
+On remarque quand même qu'au delà de la classification, nos embeddings ont réussi a modéliser la sémantique de nos questions : les phrases voisines ont systématiquement un sens proche. On pourrait par exemple se servir de se modèle pour construire 
+
 Pour améliorer encore notre classificateur, on pourrait notamment utiliser des méthodes plus sophistiquées que la moyenne pour nos sentences embeddings.
 
-[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de réseaux réccurents pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
 
-[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la convolution, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html)et l'autre basée sur les transformers, des réseaux basés sur l'attention, et dont on parlera peut être dans un prochain article. 
+[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de **réseaux réccurents** pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
+
+[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la **convolution**, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html)et l'autre basée sur les **transformers**, des réseaux basés sur l'attention, et dont on parlera peut être prochainement. 
+
+
+
+Le code utilisé dans cet article est disponible [ici](https://colab.research.google.com/drive/12z1rFOOqmViCzdSlWvELyVD-mi-o7n6U?usp=sharing) 
