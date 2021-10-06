@@ -499,7 +499,7 @@ On a associé ici à chaque question la moyenne des embeddings 3d des mots qui l
 
 {% include question_classif/sentence_vectors_cat1.html%}
 
-On a aussi classé ici les questions par couleur, selon leur catégorie. Il serait illisible d'afficher les 50 sous-catégories, on montre donc les 6 catégories de premier niveau. (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**). 
+On a aussi affiché les catégories des questions, avec des couleurs différentes. Il serait illisible d'afficher les 50 sous-catégories, on montre donc les 6 catégories de premier niveau. (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**). 
 
 
 Il n'y a pas de séparation marquée entre les catégories, mais on peut déja remarquer des agglomérations de phrases de même catégorie à certains endroits. Si les groupes étaient plus marqués, ce serait alors plus facile de classifier une phrase en fonction du groupe de points auquel son embedding appartient.
