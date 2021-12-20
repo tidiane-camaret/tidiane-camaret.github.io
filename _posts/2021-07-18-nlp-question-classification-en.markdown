@@ -570,9 +570,9 @@ The classification score is this time **0.675** for class 1 (6 categories), and 
 
 We notice that beyond the classification, our embeddings have succeeded in modeling the semantics of our questions: the neighboring sentences have systematically a close meaning. This model could be used as a search engine in domains where the semantics of sentences is important, such as the **search for similar questions** on a self-help forum. 
 
-To further improve our classifier, we could use more sophisticated methods than the average for our embedding sentences: [Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) propose the use of **recurrent networks** to capture the meaning of the set of embeddings of the words of a sentence, in a similar way to what is done in [this article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) on image description.
+To further improve our classifier, we could use more sophisticated methods than the average for our embedding sentences: [Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) propose the use of **recurrent networks** to capture the meaning of the set of embeddings of the words of a sentence, in a similar way to what is done in [this article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning-en.html) on image description.
 
-[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) propose two methods, one based on **convolution**, a method which is also discussed [here](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html), and the other based on **transformers**, attention-based networks, which we might discuss about in a future article. 
+[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) propose two methods, one based on **convolution**, a method which is also discussed [here](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning-en.html), and the other based on **transformers**, attention-based networks, which we might discuss about in a future article. 
 
 
 

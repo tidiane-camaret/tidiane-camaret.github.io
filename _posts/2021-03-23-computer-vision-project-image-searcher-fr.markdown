@@ -146,7 +146,7 @@ On aimerait, pour chaque image, produire une phrase résumant son contenu, et ce
 
 Le papier [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), de Kelvin Xu et Al propose une architecture permettant d'associer à une image une phrase descriptive. Celle-ci est constituée d'un CNN, ainsi que d'un réseau récurrent (RNN) permettant de générer des phrases cohérentes et en rapport avec l'image. 
 
-On va utiliser ici un script librement inspiré d'une implémentation de [Sgrvinod](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning), que je décris [dans cet article.](http://127.0.0.1:4000/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html)
+On va utiliser ici un script librement inspiré d'une implémentation de [Sgrvinod](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning), que je décris [dans cet article.](http://127.0.0.1:4000/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning-fr.html)
 
 ```console
 $python3 imcap_sgrvinod/caption_photosearch.py  --model='imcap_sgrvinod/BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar' --word_map='imcap_sgrvinod/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json' --beam_size=5 --imglist='url_list_natgeotravel.json'--dict_path='captions_dict_natgeotravel.json'
