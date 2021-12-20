@@ -1,97 +1,97 @@
 ---
 layout: post
-title:  "Description d'image :  réseaux convolutifs et réccurents avec pytorch "
+title:  "Generating automatic image descriptions : An encoder-decoder model with pytorch"
 date:   2021-04-18 11:20:25 +0100
-categories: computer_vision react python data_science
-lang: fr
+categories: computer_vision encoder_decoder 
+lang: en
 ref: image_searcher
 ---
 
 
-L'**image captioning**, un champ d'études de l'analyse d'images, se penche sur la capacité des algorithmes à décrire le contenu d'une image par un texte plus ou moins long.
+**Image captioning**, a field of study in image analysis, focuses on the ability of algorithms to describe the content of an image by a text, generally one or a few sentences.
 
-La publication [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), de Kelvin Xu et Al, propose une architecture permettant d'associer à une image une phrase descriptive. Elle est constituée d'un réseau de neurones convolutif **(CNN)** et d'un réseau récurrent **(RNN)** permettant de générer des phrases cohérentes et en rapport avec l'image. On va ici décrire brièvement le fonctionnement d'une telle architecture, et tenter de produire à notre tour des descriptions.
-
-
-
-# Partie 1 : Le CNN
-
-Une méthode traditionnelle de machine learning pour extraire les informations d'une image est l'utilisation de réseaux de neurones, et plus particulièrement les CNN. Ils appliquent des **convolutions** sur la surface de l'image, permettant d'y détecter des motifs de plus ou moins haut niveau, et d'associer ces motifs aux caratéristiques de tel ou tel objet. 
-
-Lors de l'entrainement du réseau, celui-ci apprendra à la fois les caractéristiques des convolutions à appliquer, et à quel contenu associer ces motifs : visage, voiture, chat, etc ...
+The publication [Show, Attend and Tell: Neural Image Caption Generation with Visual Attention](https://arxiv.org/abs/1502.03044), by Kelvin Xu et al, proposes an architecture allowing to associate a descriptive sentence to an image. It consists of a convolutional neural network **(CNN)** and a recurrent network **(RNN)** allowing to generate coherent sentences related to the image. We will briefly describe here the functioning of such an architecture, and try to produce descriptions of our own.
 
 
 
-L'architecture traditionnelle d'un CNN comprend plusieurs étapes successives de convolution/normalisation, suivies d'une couche dite **dense**, où tous les neurones sont connectés (située tout à droite sur le schéma): 
+# Part 1: The CNN
+
+A traditional method of machine learning to extract information from an image is the use of neural networks, and more particularly the CNN. They apply **convolutions** on the surface of the image, allowing to detect patterns of more or less high level, and to associate these patterns to the characteristics of such or such object. 
+
+When training the network, it learns both the characteristics of the convolutions to be applied, and to which content to associate these patterns: face, car, cat, etc...
+
+
+
+The traditional architecture of a CNN includes several successive convolution/normalization steps, followed by a so-called **dense** layer, where all neurons are connected (located on the right side of the diagram): 
 ![img1](/assets/images/img_captioning/im1.png)
 (source: [Kaggle.com](https://www.kaggle.com/cdeotte/how-to-choose-cnn-architecture-mnist))
 
-La taille de sortie de la **couche dense** correspond au nombre de classes que le réseau peut reconnaître. 
+The output size of the **dense layer** is the number of classes the network can recognize. 
 
-Des CNN déja entrainés sur de grandes bases de données d'images sont disponibles sur Internet. Parmi eux, [AlexNet](https://papers.nips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf), un CNN entrainé sur la base d'images [ImageNet](http://www.image-net.org/) (1.2 millions d'images de 1000 classes différentes), et publiée en 2012, reste encore aujourd'hui un référence de modèle pré-entrainé.
+CNNs trained on large image databases are available on the Internet. Among them, [AlexNet](https://papers.nips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf), a CNN trained on the [ImageNet](http://www.image-net.org/) image database (1.2 million images of 1000 different classes), and published in 2012, still remains a reference of pre-trained model.
 
 
-Ici, nous ne voulons pas associer une image à telle ou telle catégorie, mais bien en rédiger une phrase descriptive. Même en limitant la taille maximum de la phrase, le nombre de phrases différentes possibles est beaucoup trop grand pour en associer chacune à un neurone de sortie de la couche finale.
+Here, we do not want to associate an image with this or that class, but rather write a descriptive sentence about it. Even limiting the maximum sentence size, the number of different possible sentences is far too large to associate each one with an output neuron of the final layer.
 
-Xu et Al montrent qu'il est toutefois possible de se servir de la **capacité de représentation** d'un CNN entrainé pour accomplir cette tache. Ils utilisent les couches dédiées à la convolution/normalisation, nécéssaires pour extraire les caractéristiques de l'image, mais décident d'extraire le vecteur généré à la fin de celui-ci, et de ne pas utliser la dernière couche dédiée à la classification. 
+Xu et al show that it is however possible to use the **representational capacity** of a trained CNN to accomplish this task. They use the layers dedicated to convolution/normalization, necessary to extract the image features, but decide to extract the generated vector at the end of it, and not to use the last layer dedicated to classification. 
 
-**Chaque image est donc transformée en un vecteur I de taille fixe** :
+**Each image is thus transformed into a vector I of fixed size** :
 
 ![img7fr](/assets/images/img_captioning/im7fr.png)
- Ce vecteur contient un certain nombre d'informations sur l'image, même si il est ininterprétable tel quel. Xu et Al vont utiliser un autre réseau de neurones, un **RNN**, pour générer la phrase description à partir de ce vecteur.
+ This vector contains some information about the image, even if it is uninterpretable as it is. Xu and Al will use another neural network, a **RNN**, to generate the description sentence from this vector.
 
-# Partie 2 : Le RNN
+# Part 2 : The RNN
 
-Les RNN sont un autre type d'architecture de réseau de neurones, particulièrement utilisées dans les taches impliquant un **traitement séquentiel** de l'information.
+RNNs are another type of neural network architecture, particularly used in tasks involving **sequential processing** of information.
 
-Comme dans la plupart des architectures, ces réseaux prennent un vecteur en entrée, et donnent un vecteur en résultat. Cependant, ils sont construits de manière à ce que le vecteur de résultat dépende du vecteur d'entrée, mais aussi des vecteurs d'entrée recus précédemment.
+As in most architectures, these networks take a vector as input, and give a vector as result. However, they are constructed in such a way that the result vector depends on the input vector, but also on the previously received input vectors.
 
-Ceci fonctionne gràce au fait qu'à chaque étape du traitement, **une partie des neurones du réseau conserve leur état de l'étape précédente**. Cette capacité est particulièrement utile pour les taches nécéssitant une "mémorisation" des étapes au fil du temps, comme le traitement de signaux audio ou de texte. 
-
-
-Xu et Al s'en servent pour la génération de la description d'image :
-Le RNN prend ici comme **état** le vecteur représentatif **I** généré à l'étape précédente. 
-
-On met en **entrée** du RNN un potentiel premier mot pour la description, par exemple le mot **"Un"**. Le RNN génère un autre mot, par exemple **"homme"**, en **modifiant au passage son état**.
-
-C'est ce **nouvel état** qui va être utilisé lors de la génération du mot suivant.
+This works because at each step of the processing, **a part of the neurons of the network keeps their state from the previous step**. This ability is particularly useful for tasks that require "memorization" of steps over time, such as audio or text processing. 
 
 
-![img6fr](/assets/images/img_captioning/im6fr.png)
+Xu and Al use it for image description generation:
+Here the RNN takes as **state** the representative vector **I** generated in the previous step. 
 
-Le RNN génère donc séquentiellement une phrase, mot par mot. Intialement, sans entrainement du réseau, ces mots seront aléatoires et n'auront pas de rapport avec l'image initale. On va donc maintenant l'entrainer sur un grand nombre d'images :  
+We put in **input** of the RNN a potential first word for the description, for example the word **"Un "**. The RNN generates another word, for example **"man "**, by **modifying its state**.
+
+It is this **new state** that will be used when generating the next word.
 
 
-# Partie 3 : Les données
+img6en](/assets/images/img_captioning/im6en.png)
 
-On va entrainer notre architecture sur la base de données **COCO**. Cette base de données contient **des centaines de milliers d'images annotées**, et est disponible au téléchargement sur https://cocodataset.org/.
+The RNN generates sequentially a sentence, word by word. Initially, without training the network, these words will be random and will have no relation with the initial image. We will now train it on a large number of images:  
+
+
+# Part 3: The data
+
+We will train our architecture on the **COCO** database. This database contains **hundreds of thousands of annotated images**, and is available for download at https://cocodataset.org/.
 ![img3](/assets/images/img_captioning/im3.png)
 
-On télécharge le fichier `annotations_trainval2014.zip`, contenant les informations de chaque image de la base à date de 2014, et on utilise la librairie `pycocotools`, qui contient des fonctions nous permettant de manipuler facilement ces informations.
+We download the file `annotations_trainval2014.zip`, containing the information of each image of the database as of 2014, and we use the `pycocotools` library, which contains functions allowing us to easily manipulate this information.
 
 
 ```python
 from pycocotools.coco import COCO
 
-coco = COCO("instances_train2014.json") #instance de classe COCO, contenant des informations relatives à chaque image
-coco_caps = COCO("captions_train2014.json") #instance contenant les descriptions (plusieurs par image)
+coco = COCO("instances_train2014.json") #COCO class instance, containing information about each image
+coco_caps = COCO("captions_train2014.json") #instance containing the descriptions (several per image)
 
 
-ids = list(coco.anns.keys()) #liste des identifiants des images
+ids = list(coco.anns.keys()) #list of image identifiers
 ```
 
-On peut afficher une image de notre base, ainsi que ses descriptions associées :
+We can display an image of our database, as well as its associated descriptions:
 ```python
-#import de quelques librairies pour l'affichage et la navigation
+#import of some libraries for display and navigation
 import matplotlib.pyplot as plt 
 import skimage.io as io 
 import numpy as np 
 %matplotlib inline 
 
-#extraction du premier id de la base
+#extraction of the first id of the database
 ann_id = ids[1]
 
-#affichage de l'image et de son url fixe
+#display of the image and its url
 img_id = coco.anns[ann_id]['image_id']
 img = coco.loadImgs( img_id )[0]
 url = img['coco_url']
@@ -99,7 +99,7 @@ print(url)
 I = io.imread(url)
 plt.imshow(I)
 
-#affichage des descriptions 
+#displaying descriptions  
 ann_ids = coco_caps.getAnnIds( img_id   )
 anns = coco_caps.loadAnns( ann_ids )
 coco_caps.showAnns(anns)
@@ -107,16 +107,15 @@ coco_caps.showAnns(anns)
 ```
 ![img4](/assets/images/img_captioning/im4.png)
 
-# Partie 4 : le traitement du texte
+# Part 4: Text processing
 
-Pour permettre au RNN de traiter les phrases, on va les diviser en **tokens**, des unités d'informations que le réseau va pouvoir traiter une à une. Chaque mot ou symbole rencontré dans le texte de la base sera associé à un token, lui même indexé par un indice dans un **dictionnaire**. Nous créeons également 3 tokens spécifiques, réservés à la compréhension du texte : 
+To allow the RNN to process the sentences, we will divide them into **tokens**, units of information that the network will be able to process one by one. Each word or symbol encountered in the text of the database will be associated with a token, itself indexed by an index in a **dictionary**. We also create 3 specific tokens, reserved for the understanding of the text: 
 
-`<start>` indiquera le début d'une description, `<end>` en indiquera la fin, et `<unk>` sera utilisé pour indiquer les éventuels mots non répertoriés dans le dictionnaire. 
-
+`<start>` will indicate the beginning of a description, `<end>` will indicate the end, and `<unk>` will be used to indicate possible words not listed in the dictionary. 
 
 ```python
-"""création de deux dictionnaires : word2idx et idx2word, pour passer rapidement 
-d'un token à son indice correpondant"""
+"""creation of two dictionaries : word2idx and idx2word, to quickly switch 
+from a token to its corresponding index"""
 word2idx = {'<start>': 0,
  '<end>': 1,
  '<unk>': 2}
@@ -126,7 +125,7 @@ idx2word = {0: '<start>',
 
 idx = 3
 
-"""Création d'un compteur comprenant tous les tokens lus dans les descriptions """
+"""Creation of a counter including all the tokens read in the descriptions """
 coco = COCO("annotations/captions_train2014.json")
 counter = Counter()
 ids = coco.anns.keys()
@@ -138,8 +137,8 @@ for i, id in enumerate(ids):
     if i % 100000 == 0:
         print("[%d/%d] Tokenizing captions..." % (i, len(ids)))
 
-""" Ajout dans les dictionnaires word2idx et idx2word 
-de tous les mots apparaissant plus de 8 fois"""
+""" Addition in the dictionaries word2idx and idx2word 
+of all words appearing more than 8 times"""
 vocab_threshold = 8
 words = [word for word, cnt in counter.items() if cnt >= vocab_threshold]
 
@@ -152,34 +151,34 @@ for i, word in enumerate(words):
 len(word2idx) #taille du vocabulaire : 7072 tokens
 ```
 
+# Part 5: Image processing
 
-# Partie 5 : Le traitement de l'image
+As for the text of the descriptions, the image must be put in vector form to be processed by the network. We also normalize it to make it more easily interpretable by the CNN used.
 
-Comme pour le texte des descriptions, l'image doit être mise sous forme vectorielle pour être traitée par le réseau. Nous la normalisons également pour la rendre plus facilement interprétable par le CNN utilisé.
-
-On va créer notre architecture via les librairies **pytorch** et **torchvision** . Celles-ci intègrent des fonctions utiles pour le pré-traitement, comme `transforms` :
+We will create our architecture via the libraries **pytorch** and **torchvision** . These libraries integrate useful functions for pre-processing, such as `transforms` :
 
 ```python
 
 from torchvision import transforms
 
 transform_train = transforms.Compose([ 
-    transforms.Resize(256),                          # réduction à une taille 256 * 256
-    transforms.ToTensor(),                           # conversion image->tenseur
-    transforms.Normalize((0.485, 0.456, 0.406),      # normalisation
+    transforms.Resize(256),                          # reduction to size 256 * 256
+    transforms.ToTensor(),                           # conversion image->tensor
+    transforms.Normalize((0.485, 0.456, 0.406),      # normalization
                          (0.229, 0.224, 0.225))])
 
 ```
-# Partie 6 : Préparation de l'entrainement
+# Part 6: Training preparation
 
-On a maintenant toutes les informations nécessaires pour entrainer notre réseau.
-**Pytorch** possède une classe pré-définie représentant les jeux de données, et il est possible créer une classe héritée de celle-ci pour les manipuler plus facilement. Un [tutoriel détaillé](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html) disponible sur le site de Pytorch, mais en résumé, deux méthodes de la classe doivent être réecrites en fonction de notre jeu de données :
+We have now all the necessary information to train our network.
+**Pytorch** has a pre-defined class representing the datasets, and it is possible to create a class inherited from it to manipulate them more easily. A [detailed tutorial](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html) available on the Pytorch site, but in summary, two methods of the class must be rewritten according to our dataset:
 
 
- - La méthode `__getitem__`, de manière à ce que `dataset[i]` renvoie le ième item,  
- - La méthode `__len__`, de manière à ce que `len(dataset)` renvoie la taille du jeu de données.  
 
-Nous créons la classe héritée `CoCoDataset` :
+ - The `__getitem__` method, so that `dataset[i]` returns the ith item,  
+ - The `__len__` method, so that `len(dataset)` returns the size of the dataset.  
+
+We create the inherited class `CoDataset` :
 
 
 ```python
@@ -203,18 +202,18 @@ class CoCoDataset(data.Dataset):
             self.paths = [item['file_name'] for item in test_info['images']]
         
     def __getitem__(self, index):
-        # obtention de l'image et de la description
+               # get the image and description
         if self.mode == 'train':
             ann_id = self.ids[index]
             caption = self.coco.anns[ann_id]['caption']
             img_id = self.coco.anns[ann_id]['image_id']
             path = self.coco.loadImgs(img_id)[0]['file_name']
 
-            # Conversion de l'image en tenseur
+            # Convert the image to a tensor
             image = Image.open(os.path.join(self.img_folder, path)).convert('RGB')
             image = self.transform(image)
 
-            # Conversion de la description en tokens, puis en ids.
+            # Convert the sentence into tokens, then into ids
             tokens = nltk.tokenize.word_tokenize(str(caption).lower())
             caption = []
 
@@ -229,7 +228,6 @@ class CoCoDataset(data.Dataset):
         else:
             path = self.paths[index]
 
-            # Conversion de l'image en tenseur
             PIL_image = Image.open(os.path.join(self.img_folder, path)).convert('RGB')
             orig_image = np.array(PIL_image)
             image = self.transform(PIL_image)
@@ -249,7 +247,7 @@ class CoCoDataset(data.Dataset):
             return len(self.paths)
 ```
 
-On crée ensuite notre instance de classe `dataset` :
+We then create our `dataset` class instance :
 ```python
 from tqdm import tqdm
 
@@ -284,11 +282,11 @@ data_loader = data.DataLoader(dataset=dataset,
 
 
 ```
-# Partie 7 : L'architechture
+# Part 7 : The architecture
 
-On va maintenant pouvoir constuire notre architecture :
+We can now build our architecture:
 
-Pour le CNN, on se base sur le réseau [resnet50](https://arxiv.org/abs/1512.03385), déja inclus dans la librairie `torchvision`. Comme indiqué précédemment, on retire la dernière couche du réseau, pour la remplacer par une couche de taille de sortie 256. Le vecteur **I** représentatif de chaque image aura donc cette taille.
+For the CNN, we use the network [resnet50](https://arxiv.org/abs/1512.03385), already included in the `torchvision` library. As previously mentioned, we remove the last layer of the network, and replace it with a layer of output size 256. The **I** vector representing each image will thus have this size.
 
 ```python
 import torch.nn as nn
@@ -303,7 +301,7 @@ class EncoderCNN(nn.Module):
         for param in resnet.parameters():
             param.requires_grad_(False)
         
-        modules = list(resnet.children())[:-1] #supression de la dernière couche
+        modules = list(resnet.children())[:-1] 
         self.resnet = nn.Sequential(*modules)
         self.embed = nn.Linear(resnet.fc.in_features, embed_size)
 
@@ -314,7 +312,7 @@ class EncoderCNN(nn.Module):
         return features
 
 ```
-Pour le RNN, on construit un réseau récurrent de taille d'entrée 256
+For the RNN, we build a recurrent network of input size 256
 
 ```python
 
@@ -370,9 +368,9 @@ class DecoderRNN(nn.Module):
         return final_output  
 ```
 
-# Partie 8 : L'entrainement du réseau 
+# Part 8: Training the network 
 
-On peut finalement entrainer notre réseau :
+We can finally train our network:
 
 ```python 
 import math
@@ -524,5 +522,5 @@ features  = encoder(processed_img.to(device)   ).unsqueeze(1)
 final_output = decoder.Predict( features  , max_len=20)
 get_sentences(original_img, final_output)
 ```
-
+Here is a result of the model on previously unseen data :
 ![img5](/assets/images/img_captioning/im5.png)
