@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Unsupervised text recognition - a paper implementation"
-date:   2021-03-20 11:20:25 +0100
+date:   2021-12-20 11:20:25 +0100
 categories: computer vision, unsupervised learning, text recognition
 lang: en
 ref: unsupervised learning
