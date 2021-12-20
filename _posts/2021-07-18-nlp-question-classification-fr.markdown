@@ -25,10 +25,7 @@ Comment ces algorithmes arrivent-ils à saisir le sens d’une question, et à s
 La première idée qui pourrait nous venir en tête serait de définir des règles basées sur les champs lexicaux des mots de la question : par exemple, si celle-ci contient une des déclinaisons des verbes “écrire”, “rédiger”,  elle a de grandes chances de porter sur un auteur. Comment généraliser cette idée et proposer un champ lexical pertient pour chaque catégorie de question?
 
 
-On peut, pour commencer, définir clairement les catégories dans lesquelles on va classer les questions. Pour ça, on peut se baser sur des catégories déja existantes.
-
-
-On va ici utiliser un jeu de données pré-existant contenant 5452 questions, la base [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. Chaque question, en anglais, est classée parmi 6 catégories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**) et 50 sous-catégories, dont nous pouvons retrouver le détail [ici.](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
+On peut, pour commencer, définir clairement les catégories dans lesquelles on va classer les questions. Pour ça, on va utiliser un jeu de données pré-existant contenant 5452 questions, la base [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. Chaque question, en anglais, est classée parmi 6 catégories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**) et 50 sous-catégories, dont nous pouvons retrouver le détail [ici.](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
 
 
 Regardons d'abord à quoi ressemble notre jeu de données :
@@ -87,10 +84,11 @@ for i in range(len(data_group)) :
 
 *Les 10 termes apparaissant le plus souvent dans chaque catégorie*
 
-# Utilisation de l'inférence bayésienne
+# Tirer profit de la fréquence d'apparition des mots : l'inférence bayésienne
 
 
-On va, à partir de ces champs lexicaux créés, construire un classificateur de questions, à partir de la [méthode bayésienne](https://fr.wikipedia.org/wiki/Inf%C3%A9rence_bay%C3%A9sienne). L'idée est simple : On va calculer les probabilités, pour chaque mot de la phrase, puis pour la phrase entière, d'appartenir à chaque catégorie. 
+On va, à partir de ces champs lexicaux créés, construire un classificateur de questions, à partir de la [méthode bayésienne](https://fr.wikipedia.org/wiki/Inf%C3%A9rence_bay%C3%A9sienne). L'idée est simple : On va calculer les probabilités d'appartenance à chaque catégorie pour chaque mot
+, puis généraliser ces probabilités au niveau des phrases.
 
 
 Imaginons pour le moment que notre base de données se composent uniquement de 3 questions, chacune dans une catégorie différente : 
@@ -215,14 +213,9 @@ Pour la classe 1, qui compte seulement 6 catégories, la précision est de **48,
 
 # Une approche prenant en compte la structure du language : les word vectors
 
-Notre modèle bayésien, s'il fait mieux que le pur hasard, possède une désavantage inhérent : Chaque occurence de mot est considérée comme indépendante des autres. 
+Notre modèle bayésien, s'il fait mieux que le pur hasard, possède une désavantage inhérent : Chaque apparition d'un mot est considérée comme indépendante des autres. Or, certains mots possèdent une proximité sémantique : les différentes conjuguaisons d'un même verbe, ou les noms de lieu, par exemple. Cette proximité n'est pas modélisée par notre approche, qui considère les mots comme des variables n'ayant aucun rapport entre elles.
 
-Or, certains mots possèdent une proximité sémantique : les différentes conjuguaisons d'un même verbe, ou les noms de lieu, par exemple. Cette proximité n'est pas modélisée par notre approche, qui considère les mots comme des variables n'ayant aucun rapport entre elles.
-
-Le concept d'**embedding** fait correspondre chaque **mot** à **un point dans un espace continu**, le plus souvent multidimensionnel. 
-
-
-Voilà un exemple d'embeddings de 34 mots, en deux dimensions :
+Le concept d'**embedding** fait correspondre chaque **mot** à **un point dans un espace continu**, le plus souvent multidimensionnel. Voilà un exemple d'embeddings de 34 mots, en deux dimensions :
 
 
 <img src="/assets/images/question_classif/im3.jpg" 
@@ -232,7 +225,7 @@ height="400"/>
 
 On remarque que les mots de sens proche sont souvent à coté, et qu'ils forment même des groupes sémantiques cohérents. Et c'est précisément pour ça que cette méthode est intéressante : elle permet de représenter la structure du language utilisé, et faciliter la tâche de certains algorithmes de traitement du language. 
 
-Mais alors, comment produire des embeddings ? La plupart des méthodes exploitent des corpus de textes existants. L'hypothèse de base de ces méthodes est que des mots qui apparaissent souvent dans des voisinages de mots similaires ont plus de chance de partager des attributs. Par exemple, les mots apparaisant après un pronom personnel ont de grandes chances d'être des verbes.
+Mais alors, comment produire des embeddings ? La plupart des méthodes exploitent des corpus de textes existants. L'hypothèse de base de ces méthodes est que des mots qui apparaissent souvent dans des voisinages de mots similaires ont plus de chance de partager des attributs. Par exemple, les mots apparaisant après un pronom personnel ont de grandes chances d'être des verbes, les mots appartenant au même champ lexical on plus de chance d'être les uns à côté des autres, etc ...
 
 
 Nous allons tenter de construire nos propres embeddings, en suivant la méthode **Continuous bag-of-words (CBOW)**, proposée par [Mikolov](https://arxiv.org/pdf/1301.3781.pdf). Cette méthode consiste à entrainer un **réseau de neurones** possédant une couche cachée à prédire un mot à partir de ses mots voisins. 
@@ -504,9 +497,9 @@ On a aussi affiché les catégories des questions, avec des couleurs différente
 
 Il n'y a pas de séparation marquée entre les catégories, mais on peut déja remarquer des agglomérations de phrases de même catégorie à certains endroits. Si les groupes étaient plus marqués, ce serait alors plus facile de classifier une phrase en fonction du groupe de points auquel son embedding appartient.
 
-Pour affiner notre outil de classification, on va utiliser des word embeddings de mots plus performants, car déja entrainés sur un corpus beaucoup plus large : les [Glove](https://nlp.stanford.edu/projects/glove/)
+Pour affiner notre outil de classification, on va utiliser des word embeddings de mots plus performants, car déja entrainés sur un corpus beaucoup plus large : les [Glove.](https://nlp.stanford.edu/projects/glove/)
 
-Ces vecteurs sont produits de la même manière qu'expliquée précédemment, mais sont de dimension 50, et sont entrainées la totalité du contenu anglais de wikipédia (2014), un corpus d' 1,6 milliards de mots.
+Ces vecteurs sont produits de la même manière qu'expliquée précédemment, mais sont de dimension 50, et sont entrainées la totalité du contenu anglais de wikipédia (2014), un corpus d'1,6 milliards de mots.
 
 ```python
 import gensim.downloader
@@ -524,14 +517,14 @@ data['mean_vec_glove'] = data['vec'].apply(lambda x: sentence_mean_glove(x))
 
 ```
 
-Chaque question est maintenant représentée par un vecteur de taille 50. Pour pouvoir visualiser ces vecteurs, nous allons réduire leurs dimensions avec l'agortihme [t-sne](https://datascientest.com/comprendre-lalgorithme-t-sne-en-3-etapes) :
+Chaque question est maintenant représentée par un vecteur de taille 50. Pour pouvoir visualiser ces vecteurs, nous allons réduire leurs dimensions avec l'algorithme [t-sne](https://datascientest.com/comprendre-lalgorithme-t-sne-en-3-etapes) :
 
 ```python
 from sklearn.manifold import TSNE
 sentence_vec_tsne = TSNE(n_components=3).fit_transform(data['mean_vec_glove'].tolist())
 ```
 
-On va maintenant pouvoir afficher notre nuage de points : 
+On peut maintenant afficher notre nuage de points : 
 
 ```python
 import plotly.graph_objects as go
@@ -554,7 +547,7 @@ fig.show()
 
 {% include question_classif/sentence_vectors_cat1_glove.html%}
 
-On peut remarquer que les groupes sont bien plus marqués. On va se servir de ces groupements pour construire un classificateur. Le principe est simple : Pour une question donnée, on va calculer son **sentence embedding**, et décider que sa classe est celle de la phrase dont elle est la plus proche. 
+On peut remarquer que les groupes sont bien plus marqués. On va se servir de ces groupements pour construire un classificateur. Le principe est simple : Pour une question donnée, on va calculer son **sentence embedding**, et l'associer à la classe de la question connue la plus proche : 
 
 ```python
 X = data['mean_vec_glove'].tolist()
@@ -571,9 +564,9 @@ score
 ```
 Le score de classification est cette fois-ci de **0.675** pour la classe 1 (pour rappel, 6 catégories), et **0.567** pour la catégorie 2 (50 catégories). Il est encore assez bas vis-à-vis de l'état de l'art en classification, mais déja supérieur à notre précédente méthode.
 
-On remarque quand même qu'au delà de la classification, nos embeddings ont réussi a modéliser la sémantique de nos questions : les phrases voisines ont systématiquement un sens proche. On pourrait par exemple se servir de se modèle pour construire un moteur de recherche de questions sur un forum d'entraide. 
+On remarque quand même qu'au delà de la classification, nos embeddings ont réussi a modéliser la sémantique de nos questions : les phrases voisines ont systématiquement un sens proche. Ce modèle pourrait servir comme moteur de recherche dans des domaines où la sémantique des phrases est importante, comme par exemple la **recherche de  questions similaires** sur un forum d'entraide. 
 
-Pour améliorer encore notre classificateur, on pourrait notamment utiliser des méthodes plus sophistiquées que la moyenne pour nos sentences embeddings :[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de **réseaux réccurents** pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
+Pour améliorer encore notre classificateur, on pourrait notamment utiliser des méthodes plus sophistiquées que la moyenne pour nos sentences embeddings :[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de **réseaux récurrents** pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
 
 [Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la **convolution**, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html), et l'autre basée sur les **transformers**, des réseaux basés sur l'attention, et dont on parlera peut être prochainement. 
 

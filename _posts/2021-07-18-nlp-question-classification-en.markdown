@@ -10,31 +10,31 @@ use_math: true
 
 {% include _mathjax_support.html%}
 
-Si on recherche une information précise dans de larges volumes de textes, une manière qui peut nous venir à l'esprit est d'utiliser des **mots clés** : Par exemple, si on cherche le nom de l'auteur **des Misérables**, on peut d'abord trouver un texte traitant de la littérature française en général, puis chercher à l'interieur de ce texte des termes susceptibles d’être à proximité de la réponse cherchée : **“Misérables auteur”** ou **"Misérables écrivain”**.
+When searching for specific information in large volumes of text, we tend to use **key words**: For example, in a text about French literature, if we are looking for the name of the author of **les Misérables**, we can search within this text for terms that are likely to be close to the answer we are looking for: **Misérables auteur "** or **"Misérables écrivain "**.
 
-Mais certains moteurs de recherche sont capables d’interpréter des questions posées en langage naturel. Par exemple, si on tape dans la barre de recherche Google “Qui a écrit les misérables ?”, l’algorithme est en mesure de détecter que l’entité recherchée est un auteur, sans que le mot “auteur“ soit explicitement présent :
+But some search engines are able to interpret questions asked in natural language. For example, if one types into the Google search bar "Who wrote Les Misérables?", the algorithm is able to detect that the entity searched for is an author, without the word "author" being explicitly present:
 
 ![img1](/assets/images/question_classif/im1.png)
 
 <!--Google utilise fréquemment WikiData, une base de données relationnelle où chaque entité est connectée à plusieurs autres en fonction de leurs rapports logiques. Connaître le type d’information recherchée au préalable facilite cette recherche.-->
 
-Comment ces algorithmes arrivent-ils à saisir le sens d’une question, et à savoir quel type d'information est recherchée ? On se propose ici de construire un programme avec le but suivant : Pour une question donnée, on veut trouver quelle est l’entité cherchée (un lieu ? une durée ? une distance ? une personne ?)  
+How do these algorithms capture the meaning of a question, and what kind of information is being sought? We propose here to build a program with the following goal: For a given question, we want to find out what entity is being sought (a place? a time? a distance? a person?)  
 
-# Une approche naïve : construire "à la main" des champs lexicaux 
+# A naive approach: building lexical fields by hand 
 
-La première idée qui pourrait nous venir en tête serait de définir des règles basées sur les champs lexicaux des mots de la question : par exemple, si celle-ci contient une des déclinaisons des verbes “écrire”, “rédiger”,  elle a de grandes chances de porter sur un auteur. Comment généraliser cette idée et proposer un champ lexical pertient pour chaque catégorie de question?
-
-
-On peut, pour commencer, définir clairement les catégories dans lesquelles on va classer les questions. Pour ça, on peut se baser sur des catégories déja existantes.
+The first idea that could come to mind would be to define rules based on the lexical fields of the words in the question: for example, if the question contains one of the declensions of the verbs "to write", "to draft", it is likely to be about an author. How to generalize this idea and propose a lexical field for each category of question?
 
 
-On va ici utiliser un jeu de données pré-existant contenant 5452 questions, la base [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), pour Text REtrieval Conference. Chaque question, en anglais, est classée parmi 6 catégories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**) et 50 sous-catégories, dont nous pouvons retrouver le détail [ici.](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
+The first step is to clearly define the categories in which the questions will be classified. To do this, we can use existing categories.
 
 
-Regardons d'abord à quoi ressemble notre jeu de données :
+We will use here a pre-existing dataset containing 5452 questions, the [TREC] database (https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html), for Text REtrieval Conference. Each question, in English, is classified among 6 categories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations and Numeric values**) and 50 subcategories, of which we can find the details [here](https://cogcomp.seas.upenn.edu/Data/QA/QC/definition.html)
+
+
+Let's first look at what our dataset looks like:
 
 ```python
-#On extrait la table du fichier csv gràce à la librairie pandas
+#We extract the table from the csv file using the pandas library
 import pandas as pd
 data = pd.read_csv('/media/tidiane/D:/Dev/NLP/data/Question_Classification_Dataset.csv', encoding='latin-1')
 data
@@ -52,14 +52,14 @@ data
 | 5451 | What currency is used in Australia ?              | ENTITY      | ENTY      | currency  |
 
 
-Dans chaque catégorie, nous pouvons voir quels mots sont les plus utilisés : Ceux-ci sont les plus susceptibles de former un champ lexical cohérent.
+In each category, we can see which words are the most used: These are the most likely to form a coherent lexical field.
 
 ```python
-#On groupe les questions par catégorie 2 :
+#We group the questions by category 2:
 data_group = data.groupby(['Category2'])['Questions'].apply(lambda x: ' '.join(x)).reset_index()
 
 
-#On transforme ensuite nos questions aggrégées en dictionnaire contenant la fréquence de chaque mot :
+#We then transform our aggregated questions into a dictionary containing the frequency of each word:
 
 def word_count(str):
     counts = dict()
@@ -75,7 +75,7 @@ def word_count(str):
 
 data_group['count'] = data_group['Questions'].apply(word_count)
 
-# Enfin, on affiche les 10 mots les plus fréquents de chaque catégorie :
+# Finally, the 10 most frequent words in each category are displayed:
 
 for i in range(len(data_group)) :
     print(data_group.loc[i, "Category2"])
@@ -85,15 +85,17 @@ for i in range(len(data_group)) :
 ```
 ![img2](/assets/images/question_classif/im2.png)
 
-*Les 10 termes apparaissant le plus souvent dans chaque catégorie*
+*The 10 most frequently occurring terms in each category*
 
-# Utilisation de l'inférence bayésienne
-
-
-On va, à partir de ces champs lexicaux créés, construire un classificateur de questions, à partir de la [méthode bayésienne](https://fr.wikipedia.org/wiki/Inf%C3%A9rence_bay%C3%A9sienne). L'idée est simple : On va calculer les probabilités, pour chaque mot de la phrase, puis pour la phrase entière, d'appartenir à chaque catégorie. 
+# Taking advantage of word frequency: the use of bayesian inference
 
 
-Imaginons pour le moment que notre base de données se composent uniquement de 3 questions, chacune dans une catégorie différente : 
+From these created lexical fields, we will build a question classifier, based on the [Bayesian method](https://en.wikipedia.org/wiki/Bayesian_inference). The idea is simple: we will calculate the probabilities of belonging to each category for each word
+and then generalise these probabilities to the sentence level.
+
+
+Let's imagine for the moment that our database consists of only 3 questions, each in a different category: 
+
 
 --How many departments are there in France ?  **(count)**
 
@@ -101,7 +103,7 @@ Imaginons pour le moment que notre base de données se composent uniquement de 3
 
 --When did french people rebel against their king ?    **(date)**
 
-On va d'abord lister la fréquence d'apparition de chaque terme dans chaque catégorie : 
+First, we will list the frequency of occurrence of each term in each category: 
 
 |             | count | ind | date |
 |-------------|-------|-----|------|
@@ -127,67 +129,66 @@ On va d'abord lister la fréquence d'apparition de chaque terme dans chaque cat�
 | Who         | 0     | 1   | 0    |
 
 
-Voici une 4e phrase : **How many people live in France ?**
+Here is a 4th sentence: **How many people live in France ?**
 
-Pouvons nous savoir, à partir de nos trois phrases précédentes, à quelle catégorie celle-ci appartient ?
+Can we tell from our three previous sentences to which category this one belongs ?
 
 
+For example, let's try to calculate the probability that our sentence belongs to the **count** category, knowing that it contains the words "How many people are in France". We will note this probability $P(count/"How\ many\ people\ are\ in\ France")$
 
-Essayons par exemple de calculer la probabilité que notre phrase appartienne à la catégorie **count**, sachant qu'elle contient les mots "How many people are in France". On va noter cette probabilité $P(count/"How\ many\ people\ are\ in\ France")$
-
-Le [théorème de Bayes](https://fr.wikipedia.org/wiki/Th%C3%A9or%C3%A8me_de_Bayes) nous permet d'écrire l'équation suivante : 
+The [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) allows us to write the following equation: 
 
 $P(count/"How\ many\ people\ are\ in\ France") = \frac{P("How\ many\ people\ are\ in\ France"/count) * P(count)}{P("How\ many\ people\ are\ in\ France")} $
 
 <!--P(count/"How many people are in France") = P("How many people are in France"/count) * P(count) / P("How many people are in France")-->
 
-Comment calculer la probabilité $P("How\ many\ people\ are\ in\ France"/count)$, c'est-à-dire la probabilité de tomber sur cette phrase exacte lorsqu'on tire une phrase dans la catégorie **count** au hasard ?
+How to calculate the probability $P("How\ many\ people\ are\ in\ France"/count)$, i.e. the probability of coming across this exact sentence when a sentence in the **count** category is drawn at random?
 
-Notre jeu de données est bien trop réduit pour obtenir directement cette probabilité. On fait alors l'hypothèse simplificatrice que les apparitions individuelles des mots sont des événements indépendants entre eux. On peut alors décomposer la probabilité comme suivant: 
+Our data set is far too small to obtain this probability directly. We then make the simplifying assumption that the individual occurrences of the words are independent events. We can then decompose the probability as follows: 
 
 $P("How\ many\ people\ are\ in\ France"/count) = P("How"/count) * P("many"/count) * P("people"/count) * P("are"/count) * P("in"/count) * P("France"/count)$
 
 
-Regardons maintenant chacune de ces expressions : $P("How"/count)$ exprime la probabilité de rencontrer le mot "How" dans une question de catégorie **count**. Or, ce mot apparait 1 fois dans la catégorie, qui compte en tout 7 mots (on peut se référer au tableau présenté plus haut) : $P("How"/count) = 1/7$
+Let us now look at each of these expressions : $P("How"/count)$ expresses the probability of encountering the word "How" in a question of category **count**. Now, this word appears 1 time in the category, which has a total of 7 words (we can refer to the table presented above): $P("How"/count) = 1/7$
 
-Le mot "many" apparait également une fois sur 7 : $P("many"/count) = 1/7$
+The word "many" also appears once :  $P("many"/count) = 1/7$
 
-Le mot "people" n'apparait pas dans la catégorie **count**. On va associer aux mots hors catégorie une **probabilité arbitrairement petite**, mais non nulle, pour éviter que le produit final ne tombe à zéro. $P("many"/count) = 10^{⁻3}$
+The word "people" does not appear in the **count** category. Words outside the category will have an **arbitrarily small but non-zero probability** associated with them, to prevent the final product from falling to zero. $P("many"/count) = 10^{⁻3}$
 
-Après avoir calculé la probabilité d'apparition de chaque mot, nous obtenons par leur produit le terme $P("How\ many\ people\ are\ in\ France"/count)$. Il est égal à $(1/7)⁵ * 10^{⁻3} \approx 5,94 * 10^{⁻8}$
+After calculating the probability of occurrence of each word, we obtain by their product the term $P("How\ many\ people\ are\ in\ France"/count)$. Il est égal à $(1/7)⁵ * 10^{⁻3} \approx 5,94 * 10^{⁻8}$
 
-De la même manière, $P("How\ many\ people\ are\ in\ France"/ind)= {10^{⁻3}}^6 = 10^{⁻18} $
+The same way, $P("How\ many\ people\ are\ in\ France"/ind)= {10^{⁻3}}^6 = 10^{⁻18} $
  
-Enfin, $P("How\ many\ people\ are\ in\ France"/date)= 1/7 * {10^{⁻3}}^5 \approx 1,42 * 10^{⁻16} $
+Finally, $P("How\ many\ people\ are\ in\ France"/date)= 1/7 * {10^{⁻3}}^5 \approx 1,42 * 10^{⁻16} $
 
-On peut noter que les probabilités caclulées sont directement dépendantes du nombre de termes de la phrase présents dans chaque catégorie : 5 mots de la phrase sur 6 sont présents dans la catégorie **count**, contre 0 dans **ind** et 1 dans **date**.
+It can be noted that the calculated probabilities are directly dependent on the number of sentence terms present in each category: 5 out of 6 words in the sentence are present in the **count** category, compared to 0 in **ind** and 1 in **date**.
 
-On peut ensuite remarquer que les probabilités $P(count)$, $P(date)$ et $P(ind)$ sont toutes égales à $1/3$
+We can then notice that the probabilities $P(count)$, $P(date)$ and $P(ind)$ are all equal to $1/3$.
 
-Dans l'expression $\frac{P("How\ many\ people\ are\ in\ France"/ \textbf {categorie}) * P(\textbf {categorie})}{P("How\ many\ people\ are\ in\ France")} $, le seul terme non constant est celui que nous venons de calculer. C'est donc lui qui va determiner l'ordre de nos probabilités : $P(count/"How\ many\ people\ are\ in\ France") > P(date/"How\ many\ people\ are\ in\ France") > P(ind/"How\ many\ people\ are\ in\ France")$ 
+Dans l'expression $\frac{P("How\ many\ people\ are\ in\ France"/ \textbf {categorie}) * P(\textbf {categorie})}{P("How\ many\ people\ are\ in\ France")} $, The only non-constant term is the one we have just calculated. It is thus him who will determine the order of our probabilities : $P(count/"How\ many\ people\ are\ in\ France") > P(date/"How\ many\ people\ are\ in\ France") > P(ind/"How\ many\ people\ are\ in\ France")$ 
 
-Notre phrase initiale a donc, selon notre modèle, plus de chances d'appartenir à la catégorie **count**.
+Our initial sentence is therefore, according to our model, more likely to belong to the **count** category.
 
-C'est cette idée d'inférence bayésienne que nous allons utiliser pour construire notre classificateur, en prenant cette fois-ci l'intégralité des phrases de notre base [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html). On espère que la diversité des phrases présentes dans cette base contribuera à la robustesse de notre modèle. 
+It is this idea of Bayesian inference that we will use to build our classifier, this time taking all the sentences in our database [TREC](https://search.r-project.org/CRAN/refmans/textdata/html/dataset_trec.html). We hope that the diversity of the sentences present in this database will contribute to the robustness of our model. 
 
-# Construction d'un classificateur bayésien
+# Putting theory into practice : Building a Bayesian classifier
 
-Nous allons diviser notre base de questions en deux. Une partie servira à entrainer notre modèle, et l'autre à évaluer ses performances. C'est une pratique courante qui évite d'évaluer un modèle sur une phrase sur laquelle il a été entrainé, chose qui biaiserait nos résultats. 
+We will divide our question base in two. One part will be used to train our model, and the other to evaluate its performance. This is a common practice which avoids evaluating a model on a sentence on which it has been trained, which would bias our results. 
 
 ```python
-#On importe de la librairie sklearn des fonctions utiles au comptage des mots.
+#We import from the sklearn library some useful functions for word counting.
 
 from sklearn import feature_extraction, model_selection, naive_bayes, pipeline, manifold, preprocessing,feature_selection, metric
 
-#On sépare notre base en deux
+#We split our base in two
 dtf_train, dtf_test = model_selection.train_test_split(data, test_size=0.3)
 
 y_train = dtf_train["Category2"].values
 
 
-corpus = dtf_train["Questions"] #ensemble des textes des questions d'entrainement
+corpus = dtf_train["Questions"] #set of texts for practice questions
 
-#On crée notre table d'occurence des mots dans chaque catégorie
+#We create our table of occurrence of words in each category
 vectorizer = feature_extraction.text.CountVectorizer(max_features=10000)#, ngram_range=(1,1))
 vectorizer.fit(corpus)
 
@@ -208,48 +209,46 @@ predicted_prob = model.predict_proba(X_test)
 metrics.accuracy_score(y_test, predicted) #0.4902200488997555
 ```
 
-Notre classificateur a un taux de bonnes réponses d'environ **49%**, ce qui est assez faible. Il faut cependant mettre ce résultat en perspective avec le fait que nous avons 50 catégories : le pur hasard nous donnerait un taux de réussite de 2% seulement.
+Our classifier has a correct answer rate of about **49%**, which is quite low. However, we have to put this result in perspective with the fact that we have 50 categories: pure chance would give us a success rate of only 2%.
 
-Pour la classe 1, qui compte seulement 6 catégories, la précision est de **48,5%**.
+For class 1, which has only 6 categories, the accuracy is **48.5%**.
+
+# An approach taking into account the structure of the language: word vectors
+
+Our Bayesian model, if it does better than pure chance, has an inherent disadvantage: Each occurrence of a word is considered as independent of the others. 
+
+However, some words have a semantic proximity: different conjugations of the same verb, or place names, for example. This proximity is not modeled by our approach, which considers words as variables that have no relation between them.
+
+The concept of **embedding** makes each **word** correspond to **a point in a continuous space**, usually multidimensional. 
 
 
-# Une approche prenant en compte la structure du language : les word vectors
-
-Notre modèle bayésien, s'il fait mieux que le pur hasard, possède une désavantage inhérent : Chaque occurence de mot est considérée comme indépendante des autres. 
-
-Or, certains mots possèdent une proximité sémantique : les différentes conjuguaisons d'un même verbe, ou les noms de lieu, par exemple. Cette proximité n'est pas modélisée par notre approche, qui considère les mots comme des variables n'ayant aucun rapport entre elles.
-
-Le concept d'**embedding** fait correspondre chaque **mot** à **un point dans un espace continu**, le plus souvent multidimensionnel. 
-
-
-Voilà un exemple d'embeddings de 34 mots, en deux dimensions :
-
+Here is an example of embeddings of 34 words, in two dimensions:
 
 <img src="/assets/images/question_classif/im3.jpg" 
 alt="word vec examples" 
 height="400"/>
 
 
-On remarque que les mots de sens proche sont souvent à coté, et qu'ils forment même des groupes sémantiques cohérents. Et c'est précisément pour ça que cette méthode est intéressante : elle permet de représenter la structure du language utilisé, et faciliter la tâche de certains algorithmes de traitement du language. 
+We notice that words with similar meaning are often next to each other, and that they even form coherent semantic groups. And this is precisely why this method is interesting: it allows to represent the structure of the language used, and to facilitate the task of some language processing algorithms. 
 
-Mais alors, comment produire des embeddings ? La plupart des méthodes exploitent des corpus de textes existants. L'hypothèse de base de ces méthodes est que des mots qui apparaissent souvent dans des voisinages de mots similaires ont plus de chance de partager des attributs. Par exemple, les mots apparaisant après un pronom personnel ont de grandes chances d'être des verbes.
+But then, how to produce embeddings? Most methods exploit existing text corpora. The basic assumption of these methods is that words that appear frequently in similar word neighborhoods are more likely to share attributes. For example, words appearing after a personal pronoun are more likely to be verbs, words belonging to the same lexical field are more likely to be next to each other, etc...
 
 
-Nous allons tenter de construire nos propres embeddings, en suivant la méthode **Continuous bag-of-words (CBOW)**, proposée par [Mikolov](https://arxiv.org/pdf/1301.3781.pdf). Cette méthode consiste à entrainer un **réseau de neurones** possédant une couche cachée à prédire un mot à partir de ses mots voisins. 
+We will try to build our own embeddings, following the **Continuous bag-of-words (CBOW)** method, proposed by [Mikolov](https://arxiv.org/pdf/1301.3781.pdf). This method consists in training a **neural network** with a hidden layer to predict a word from its neighbors. 
 
-Pour celà, on va exploiter notre base de données de questions. Notre réseau prendra en entrée un mot d'une question, et il devra correctement prédire un mot de son voisinage. 
+To do this, we will exploit our database of questions. Our network will take as input a word from a question, and it will have to correctly predict a word from its neighborhood. 
 
 
 <img src="/assets/images/question_classif/im4-2.png" 
 alt="neural network" 
 height="400"/>
 
-Une version simplifiée du modèle a été mise ci-dessus. On a en entrée le mot "the": dans la couche d'entrée, le neurone correspondant à ce mot est activée. On va entrainer le réseau à prédire un mot voisin, ici le mot "man".
+A simplified version of the model has been put above. We have in input the word "the": in the input layer, the neuron corresponding to this word is activated. We will train the network to predict a neighboring word, here the word "man".
 
-A la fin de l'entrainement du réseau, on espère que les mots de sens similaires mèneront aux mêmes prédictions de mots voisins, et auront donc des activations de couche cachée similaires : c'est ces valeurs d'activations que nous considererons par la suite comme nos embeddings.
+At the end of the training, we hope that words with similar meanings will lead to the same predictions of neighboring words, and will therefore have similar hidden layer activations: it is these activation values that we will consider later as our embeddings.
 
 
-On adapte d'abord notre jeu de données pour qu'il soit lisible par le réseau : On va créer des paires de mots $(x,y)$, $y$ étant le mot à prédire, et $x$ un mot "voisin". Nous considérons ici comme mot voisin de $y$ tout mot apparaissant dans la même phrase et éloigné de 4 mots au plus. 
+We first adapt our dataset to be readable by the network: we will create pairs of words $(x,y)$, $y$ being the word to predict, and $x$ a "neighbor" word. We consider here as a neighbor word of $y$ any word appearing in the same sentence and distant of 4 words at most. 
 
 ```python
 import itertools
@@ -359,7 +358,7 @@ for item in all_text:
 
         frequencies[item] = 1
 ```
-*word_lists* est une liste des paires (mot voisin, mot à prédire) trouvées dans le texte. On y enlever les mots trop peu communs, susceptibles de perturber la performance du modèle :
+*word_lists* is a list of pairs (neighboring word, word to predict) found in the text. It removes the words that are too uncommon, likely to disturb the performance of the model:
 
 
 ```python
@@ -368,9 +367,8 @@ word_lists = [item for item in word_lists if frequencies[item[0]]>20 and frequen
 
 
 
-On va ensuite créer deux vecteurs, X et Y, contenant respectivement la liste des mots voisins et des mots à prédire, encodés sous forme **one-hot**. 
-Celà signifie que chaque vecteur est de taille N (= taille du vocabulaire total) et contient un 1 à la position correspondant au mot codé, le reste du vecteur étant à zéro.  
-
+We will then create two vectors, X and Y, containing respectively the list of neighboring words and the words to predict, encoded in **one-hot** form. 
+This means that each vector is of size N (= size of the total vocabulary) and contains a 1 at the position corresponding to the coded word, the rest of the vector being zero.
 
 
 ![img6](/assets/images/question_classif/im6.png)
@@ -413,7 +411,7 @@ for i, word_list in tqdm(enumerate(word_lists)):
     Y.append(Y_row)
 ```
 
-Le format des objets X et Y nous permet maintenant d'entrainer un réseau de neurones : 
+The format of the X and Y objects now allows us to train a neural network: 
 
 ```python
 import tensorflow as tf
@@ -455,20 +453,20 @@ for word in list(dict_short.keys()):
 {% include question_classif/word_vectors_2d.html%}
 
 
-On peut remarquer que plusieurs mots apparentés sont relativement proches (dog/animal, day/year, city/capital). Mais il est difficile d'y trouver un cohérence globale.
+We can notice that several related words are relatively close (dog/animal, day/year, city/capital). But it is difficult to find a global consistency.
 
 
-On peut également créer des embeddings de dimensions supérieures : Pour ça, on doit changer la taille de la couche cachée de notre réseau.
-Une plus grande dimension d'embeddings permet au réseau de former des structures sémantiques plus complexes entre les différents mots. Voilà des embeddings entrainés sur le même texte, mais en 3 dimensions : 
+We can also create higher dimensional embeddings: For that, we have to change the size of the hidden layer of our network.
+A higher dimension of embeddings allows the network to form more complex semantic structures between the different words. Here are some embeddings trained on the same text, but in 3 dimensions: 
 
 {% include question_classif/word_vectors_3d.html%}
 
-Ici aussi, on remarque des similarités entre des mots proches. On va tenter de se servir de notre structure d'embeddings pour classifier nos questions. 
+Here again, we notice similarities between close words. We will try to use our embedding structure to classify our questions. 
 
-# Utilisation des word vectors pour notre classification
+# Using word vectors for our classification
 
 
-Dans le même esprit que les word embeddings, plusieurs travaux se penchent sur les **embeddings de phrases**, et sur la possibilité de saisir leur sens à travers des vecteurs. [Arora et al.](https://openreview.net/pdf?id=SyK00v5xx) décrivent plusieurs méthodes pour créer ces embeddings de phrases, mais soulignent aussi que la méthode consistant à  **prendre la moyenne des embeddings des mots de la phrase** donne des résultats satisfaisants. C'est ce qu'on va essayer ici :
+In the same spirit as word embeddings, several works are looking at **sentence embeddings**, and the possibility of capturing their meaning through vectors. [Arora et al.](https://openreview.net/pdf?id=SyK00v5xx) describe several methods to create these sentence embeddings, but also point out that the method consisting in **taking the average of the word embeddings of the sentence** gives satisfactory results. This is what we will try here:
 
 ```python
 def sentence_mean(sentence):
@@ -476,8 +474,7 @@ def sentence_mean(sentence):
     for i in range(len(sentence)):
         if sentence[i] in embedding_dict.keys():
             array_vect.append(embedding_dict[sentence[i]])
-        #else : 
-        #    array_vect.append(np.array([0,0,0]))
+
             
     return np.array(sum(array_vect)/max(1,len(array_vect)))
 
@@ -495,18 +492,18 @@ data['z'] = data['mean_vec'].apply(lambda x: x[2])
 
 ```
 
-On a associé ici à chaque question la moyenne des embeddings 3d des mots qui la composent. On peut donc sur un graphique associer un point à chaque phrase : 
+We have associated here to each question the average of the 3d embeddings of the words which compose it. We can therefore associate a point to each sentence on a graph: 
 
 {% include question_classif/sentence_vectors_cat1.html%}
 
-On a aussi affiché les catégories des questions, avec des couleurs différentes. Il serait illisible d'afficher les 50 sous-catégories, on montre donc les 6 catégories de premier niveau. (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations et Numeric values**). 
+We have also displayed the categories of the questions, with different colors. It would be unreadable to display all 50 subcategories, so we show the 6 first level categories (**Abbreviation**, **Description and abstract concepts**, **Entities**, **Human beings**, **Locations and Numeric values**). 
 
 
-Il n'y a pas de séparation marquée entre les catégories, mais on peut déja remarquer des agglomérations de phrases de même catégorie à certains endroits. Si les groupes étaient plus marqués, ce serait alors plus facile de classifier une phrase en fonction du groupe de points auquel son embedding appartient.
+There is no marked separation between the categories, but one can already notice clusters of sentences of the same category in some places. If the groups were more marked, it would be easier to classify a sentence according to the group of points to which its embedding belongs.
 
-Pour affiner notre outil de classification, on va utiliser des word embeddings de mots plus performants, car déja entrainés sur un corpus beaucoup plus large : les [Glove](https://nlp.stanford.edu/projects/glove/)
+To refine our classification tool, we will use word embeddings that are more efficient, because they have already been trained on a much larger corpus: the [Glove.](https://nlp.stanford.edu/projects/glove/)
 
-Ces vecteurs sont produits de la même manière qu'expliquée précédemment, mais sont de dimension 50, et sont entrainées la totalité du contenu anglais de wikipédia (2014), un corpus d' 1,6 milliards de mots.
+These vectors are produced in the same way as explained above, but are of dimension 50, and are trained on the entire English content of wikipedia (2014), a corpus of 1.6 billion words.
 
 ```python
 import gensim.downloader
@@ -524,14 +521,14 @@ data['mean_vec_glove'] = data['vec'].apply(lambda x: sentence_mean_glove(x))
 
 ```
 
-Chaque question est maintenant représentée par un vecteur de taille 50. Pour pouvoir visualiser ces vecteurs, nous allons réduire leurs dimensions avec l'agortihme [t-sne](https://datascientest.com/comprendre-lalgorithme-t-sne-en-3-etapes) :
+Each question is now represented by a vector of size 50. To be able to visualize these vectors, we will reduce their dimensions with the [t-sne algorithm](https://datascientest.com/comprendre-lalgorithme-t-sne-en-3-etapes) :
 
 ```python
 from sklearn.manifold import TSNE
 sentence_vec_tsne = TSNE(n_components=3).fit_transform(data['mean_vec_glove'].tolist())
 ```
 
-On va maintenant pouvoir afficher notre nuage de points : 
+We can now display our point cloud:  
 
 ```python
 import plotly.graph_objects as go
@@ -554,7 +551,7 @@ fig.show()
 
 {% include question_classif/sentence_vectors_cat1_glove.html%}
 
-On peut remarquer que les groupes sont bien plus marqués. On va se servir de ces groupements pour construire un classificateur. Le principe est simple : Pour une question donnée, on va calculer son **sentence embedding**, et décider que sa classe est celle de la phrase dont elle est la plus proche. 
+We can notice that the groups are much more marked. We will use these groupings to build a classifier. The principle is simple: For a given question, we will compute its **sentence embedding**, and associate it with the class of the closest known question: 
 
 ```python
 X = data['mean_vec_glove'].tolist()
@@ -569,14 +566,14 @@ neigh.fit(X_train, y_train)
 score = neigh.score(X_test, y_test)
 score
 ```
-Le score de classification est cette fois-ci de **0.675** pour la classe 1 (pour rappel, 6 catégories), et **0.567** pour la catégorie 2 (50 catégories). Il est encore assez bas vis-à-vis de l'état de l'art en classification, mais déja supérieur à notre précédente méthode.
+The classification score is this time **0.675** for class 1 (6 categories), and **0.567** for class 2 (50 categories). It is still quite low compared to the state of the art in classification, but already higher than our previous method.
 
-On remarque quand même qu'au delà de la classification, nos embeddings ont réussi a modéliser la sémantique de nos questions : les phrases voisines ont systématiquement un sens proche. On pourrait par exemple se servir de se modèle pour construire un moteur de recherche de questions sur un forum d'entraide. 
+We notice that beyond the classification, our embeddings have succeeded in modeling the semantics of our questions: the neighboring sentences have systematically a close meaning. This model could be used as a search engine in domains where the semantics of sentences is important, such as the **search for similar questions** on a self-help forum. 
 
-Pour améliorer encore notre classificateur, on pourrait notamment utiliser des méthodes plus sophistiquées que la moyenne pour nos sentences embeddings :[Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) proposent l'utilisation de **réseaux réccurents** pour capturer le sens de l'ensemble des embeddings des mots d'une phrase, de manière similaire à ce qui est fait dans [cet article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) portant sur la description d'images.
+To further improve our classifier, we could use more sophisticated methods than the average for our embedding sentences: [Conneau et al.](https://arxiv.org/pdf/1705.02364.pdf) propose the use of **recurrent networks** to capture the meaning of the set of embeddings of the words of a sentence, in a similar way to what is done in [this article](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html) on image description.
 
-[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) proposent quand à eux deux méthodes, l'une basée sur la **convolution**, dont on parle également [ici](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html), et l'autre basée sur les **transformers**, des réseaux basés sur l'attention, et dont on parlera peut être prochainement. 
+[Cer et al.](https://arxiv.org/pdf/1803.11175.pdf) propose two methods, one based on **convolution**, which is also discussed [here](https://tidiane-camaret.github.io/computer_vision/react/python/data_science/2021/04/18/computer-vision-image-captioning.html), and the other based on **transformers**, attention-based networks, which we might discuss about in a future article. 
 
 
 
-Le code utilisé dans cet article est disponible [ici.](https://colab.research.google.com/drive/12z1rFOOqmViCzdSlWvELyVD-mi-o7n6U?usp=sharing) 
+The code used in this article is available [here](https://colab.research.google.com/drive/12z1rFOOqmViCzdSlWvELyVD-mi-o7n6U?usp=sharing) 
