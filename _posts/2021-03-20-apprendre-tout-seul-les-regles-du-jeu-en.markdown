@@ -13,7 +13,7 @@ It turns out that is fact, in the majority of games, the AIs behavior is coded b
 
 
 ![img1](/assets/images/q_learning/im1.gif)
-*A pacman game : two states (invicible mode, non invincible mode) and two possible corresponding actions (*
+*A pacman game : two states (invicible mode, non invincible mode) and two possible corresponding actions (attack PacMan, flee from PacMan)*
 
 This way of programming an AI, called **Finite State Machine**, is a simple method allowing to create agents that can adapt to the game environment. Lets try for example to write the list of states and actions for a tic-tac-toe game : 
 
