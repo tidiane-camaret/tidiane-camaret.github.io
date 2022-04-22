@@ -10,9 +10,11 @@ ref: unsupervised learning
 Text recognition is the task of **retrieving written text in images**. It consists of turning images of text into a numerical text format.
 
 
-![img1](/assets/images/unsupervised_text_recognition/im1.png)
+![img1](/assets/images/unsupervised_text_recongition/im1.png)
 
 As humans, we are able to quickly identify written characters, but designing automatic methods achieving the same result is trickier : Same characters can be written with different fonts, sizes or colors. Some characters may also sometimes overlap each other, which makes individual character identification harder, and on top of that, images may be tainted with additional noise (paper texture, accidental ink stains ...) 
+
+![img2](/assets/images/unsupervised_text_recognition/im2.png)
 
 Most of the modern methods are flexible enough to tackle those challenges. However, they usually **require a large amount of labelled data** to be trained on, which means that in order to use them, we first need to gather thousands of text images of which we know the content beforehand. In some cases, such as low-ressource or extinct languages, this mandatory step is cumbersome.
 
