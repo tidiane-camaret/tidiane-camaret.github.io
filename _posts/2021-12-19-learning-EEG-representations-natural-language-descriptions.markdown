@@ -5,6 +5,7 @@ date:   2024-03-28 11:20:25 +0100
 categories: computer vision, constrastive learning, text processing, EEG
 lang: en
 ref: unsupervised learning
+use_math: true
 ---
 
 Recent advances in machine learning have led to deep neural networks being commonly applied to electroencephalogram (EEG) data for a variety of decoding tasks. EEG is a non-invasive method that records the electrical activity of the brain using electrodes placed on the scalp. While deep learning models can achieve state-of-the-art performance on specialized EEG tasks, most EEG analyses focus on training task-specific models for one type of classification or regression problem [Heilmeyer et al., 2018].
