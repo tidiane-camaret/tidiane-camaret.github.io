@@ -8,6 +8,9 @@ ref: unsupervised learning
 use_math: true
 ---
 
+
+{% include _mathjax_support.html%}
+
 Recent advances in machine learning have led to deep neural networks being commonly applied to electroencephalogram (EEG) data for a variety of decoding tasks. EEG is a non-invasive method that records the electrical activity of the brain using electrodes placed on the scalp. While deep learning models can achieve state-of-the-art performance on specialized EEG tasks, most EEG analyses focus on training task-specific models for one type of classification or regression problem [Heilmeyer et al., 2018].
 
 However, medical EEG recordings are often annotated with additional unstructured data in the form of free text reports written by neurologists and medical experts that can be exploited as a source of supervision. In the computer vision domain, Contrastive Language–Image Pre-training [Radford et al., 2021] (CLIP) leverages this text-image pairing to learn visual representations that effectively transfer across tasks.
