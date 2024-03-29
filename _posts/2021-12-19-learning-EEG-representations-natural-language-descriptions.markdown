@@ -35,10 +35,43 @@ The encoders are trained to minimize the contrastive loss $\mathcal{L}$, which e
 
 $\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{|f_{\theta}(x_i)| |g_{\phi}(y_j)|}$
 
-During training, EEG-CLIP learns to align the EEG and text embeddings in a shared space. This alignment enables versatile EEG decoding tasks, such as zero-shot classification, where the model can predict the class of an unseen EEG sample by comparing its embedding with the embeddings of textual class descriptions.
 
 # Experimental Setup
-   - Describe the dataset used for training and evaluation, including the number of EEG recordings and their corresponding medical reports.
+In this section, we describe the dataset used for training and evaluating EEG-CLIP, as well as the experimental settings and evaluation metrics employed to assess its performance. We focus on the Temple University Hospital EEG Corpus [Obeid and Picone, 2016], a large-scale dataset containing EEG recordings and their corresponding medical reports. The dataset's size and diversity make it well-suited for training deep learning models to learn general EEG representations.
+
+## Dataset Description
+
+The Temple University Hospital EEG Corpus [Obeid and Picone, 2016] is a comprehensive dataset containing over 25,000 EEG recordings collected from more than 14,000 patients between 2002 and 2015. The dataset's extensive size and variety of EEG recordings make it a valuable resource for training deep learning models to decode information such as pathology, age, and gender from EEG signals and generalize to unseen recordings.
+
+For our experiments, we utilize the TUH Abnormal dataset (TUAB), a demographically balanced subset of the corpus with binary labels indicating the pathological or nonpathological diagnosis of each recording. The TUAB dataset is partitioned into a training set, consisting of 1,387 normal and 1,398 abnormal files, and an evaluation set, containing 150 normal and 130 abnormal files. The dataset encompasses a wide range of pathological conditions, ensuring a diverse representation of EEG abnormalities.
+
+In addition to the binary pathology labels, each recording in the TUAB dataset is accompanied by several additional labels:
+
+- "age": An integer representing the patient's age at the time of the recording.
+- "gender": A string indicating the patient's gender, either "M" for male or "F" for female.
+- "report": A medical report written in natural language, providing a detailed description of the EEG findings and clinical interpretation.
+
+The medical reports in the TUAB dataset are structured into 15 distinct sections, each focusing on a specific aspect of the EEG analysis. Table 1 provides an overview of these sections and their respective contents.
+
+| Record Section                | Non-empty Entries | Average Word Count (Non-empty Entries) |
+|--------------------------------|-------------------|----------------------------------------|
+| IMPRESSION                     | 2971              | 16                                     |
+| DESCRIPTION OF THE RECORD      | 2964              | 70                                     |
+| CLINICAL HISTORY               | 2947              | 26                                     |
+| MEDICATIONS                    | 2893              | 4                                      |
+| INTRODUCTION                   | 2840              | 31                                     |
+| CLINICAL CORRELATION           | 2698              | 31                                     |
+| HEART RATE                     | 1458              | 2                                      |
+| FINDINGS                       | 887               | 16                                     |
+| REASON FOR STUDY               | 713               | 2                                      |
+| TECHNICAL DIFFICULTIES         | 684               | 3                                      |
+| EVENTS                         | 569               | 8                                      |
+| CONDITION OF THE RECORDING     | 116               | 30                                     |
+| PAST MEDICAL HISTORY           | 19                | 8                                      |
+| TYPE OF STUDY                  | 16                | 3                                      |
+| ACTIVATION PROCEDURES          | 9                 | 3                                      |
+
+
    - Explain the few-shot and zero-shot settings used to assess the performance of EEG-CLIP.
    - Mention any data preprocessing steps or specific evaluation metrics used.
 
