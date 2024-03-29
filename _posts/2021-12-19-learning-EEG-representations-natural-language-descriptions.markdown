@@ -33,7 +33,7 @@ Inspired by the success of CLIP, we propose EEG-CLIP, a contrastive learning fra
 
 The encoders are trained to minimize the contrastive loss $\mathcal{L}$, which encourages the embeddings of matching EEG-text pairs to be similar while pushing apart the embeddings of mismatched pairs. The similarity measure sim(.) used in EEG-CLIP is the cosine similarity between the normalized embeddings:
 
-$$\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{|f_{\theta}(x_i)| |g_{\phi}(y_j)|}$$
+$\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{|f_{\theta}(x_i)| |g_{\phi}(y_j)|}$
 
 During training, EEG-CLIP learns to align the EEG and text embeddings in a shared space. This alignment enables versatile EEG decoding tasks, such as zero-shot classification, where the model can predict the class of an unseen EEG sample by comparing its embedding with the embeddings of textual class descriptions.
 
