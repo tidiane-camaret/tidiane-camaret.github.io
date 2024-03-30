@@ -21,13 +21,15 @@ We demonstrate EEG-CLIP's potential for versatile few-shot and zero-shot EEG dec
 
 ## Methodology
 
-Contrastive self-supervised learning has recently emerged as a powerful approach for learning general visual representations. Models like CLIP [Radford et al., 2021] are trained to align image $x_i$ and corresponding text $y_i$ embeddings by minimizing a contrastive loss $\mathcal{L}$:
+Contrastive self-supervised learning has recently emerged as a powerful approach for learning general visual representations. Models like CLIP are trained to align image $x_i$ and corresponding text $y_i$ embeddings by minimizing a contrastive loss $\mathcal{L}$:
 
 $\mathcal{L}=\sum_{i=1}^{N}-\log \frac{\exp(\text{sim}(x_i,y_i)/\tau)}{\sum_{j=1}^{N}\exp(\text{sim}(x_i,y_j)/\tau)}$
 
 where sim(.) is a measure of similarity, such as cosine similarity, and $\tau$ is a temperature parameter that controls the softness of the distribution. This objective brings matching image-text pairs closer and separates mismatched pairs in the learned embedding space.
 
 CLIP is trained on a vast dataset of 400 million image-text pairs from diverse Internet sources with unstructured annotations. Through this natural language supervision, CLIP develops versatile image representations that achieve strong zero-shot inference on downstream tasks by querying the aligned embedding space.
+
+![clip](/assets/images/eegclip/clip_illustration.png)
 
 Inspired by the success of CLIP, we propose EEG-CLIP, a contrastive learning framework for aligning EEG time series data with corresponding clinical text descriptions. EEG-CLIP consists of two encoder networks: an EEG encoder $f_{\theta}$ and a text encoder $g_{\phi}$. The EEG encoder $f_{\theta}$ maps the input EEG time series $x_i$ to a fixed-dimensional embedding vector $f_{\theta}(x_i)$, while the text encoder $g_{\phi}$ maps the corresponding clinical text description $y_i$ to an embedding vector $g_{\phi}(y_i)$.
 
