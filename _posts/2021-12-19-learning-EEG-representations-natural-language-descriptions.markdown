@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "EEG-Clip : Learning EEG representations from natural language descriptions"
+title:  "EEG-CLIP : Learning EEG representations from natural language descriptions"
 date:   2024-03-28 11:20:25 +0100
 categories: computer vision, constrastive learning, text processing, EEG
 lang: en
@@ -11,11 +11,11 @@ use_math: true
 
 {% include _mathjax_support.html%}
 
-Recent advances in machine learning have led to deep neural networks being commonly applied to electroencephalogram (EEG) data for a variety of decoding tasks. EEG is a non-invasive method that records the electrical activity of the brain using electrodes placed on the scalp. While deep learning models can achieve state-of-the-art performance on specialized EEG tasks, most EEG analyses focus on training task-specific models for one type of classification or regression problem [Heilmeyer et al., 2018](https://www.researchgate.net/publication/330475732_A_Large-Scale_Evaluation_Framework_for_EEG_Deep_Learning_Architectures)
+Recent advances in machine learning have led to deep neural networks being commonly applied to electroencephalogram (EEG) data for a variety of decoding tasks. EEG is a non-invasive method that records the electrical activity of the brain using electrodes placed on the scalp. While deep learning models can achieve state-of-the-art performance on specialized EEG tasks, most EEG analyses focus on training task-specific models for one type of classification or regression problem ([Heilmeyer et al., 2018](https://www.researchgate.net/publication/330475732_A_Large-Scale_Evaluation_Framework_for_EEG_Deep_Learning_Architectures))
 
 However, medical EEG recordings are often annotated with additional unstructured data in the form of free text reports written by neurologists and medical experts that can be exploited as a source of supervision. ![tuh_dataset](/assets/images/eegclip/tuh_dataset.jpg)
 
-In the computer vision domain, Contrastive Language–Image Pre-training [Radford et al., 2021](https://arxiv.org/abs/2103.00020) leverages this text-image pairing to learn visual representations that effectively transfer across tasks. Inspired by CLIP, we propose EEG-Clip - a contrastive learning approach to align EEG time series data with corresponding clinical text descriptions in a shared embedding space. This work explores two central questions: (i) how textual reports can be incorporated into an EEG training pipeline, and (ii) to what extent this multimodal approach contributes to more general EEG representation learning.
+In the computer vision domain, Contrastive Language–Image Pre-training ([Radford et al., 2021](https://arxiv.org/abs/2103.00020))leverages this text-image pairing to learn visual representations that effectively transfer across tasks. Inspired by CLIP, we propose EEG-CLIP - a contrastive learning approach to align EEG time series data with corresponding clinical text descriptions in a shared embedding space. This work explores two central questions: (i) how textual reports can be incorporated into an EEG training pipeline, and (ii) to what extent this multimodal approach contributes to more general EEG representation learning.
 
 We demonstrate EEG-CLIP's potential for versatile few-shot and zero-shot EEG decoding across multiple tasks and datasets. EEG-CLIP achieves nontrivial zero-shot classification results. Our few-shot results show gains over previous transfer learning techniques and task-specific models in low-data regimes. This presents a promising approach to enable easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer training examples, potentially facilitating EEG analysis in medical research.
 
@@ -108,13 +108,13 @@ To further evaluate the generalization capability of the learned representations
 
 ## EEG data preprocessing
 We preprocess the EEG data, taking inspiration from the preprocessing steps in \cite{schirrmeister_deep_2018}:
-\begin{itemize}
-    \item Select a subset of 21 electrodes present in all recordings.
-    \item Exclude the first minute of the recordings and only use the first 2 minutes after that.
-    \item Clip the amplitude values to the range of ±800 \(\mu\)V to reduce the effects of strong artifacts.
-    \item Resample the data to 100 Hz to further speed up the computation.
-    \item Divide by 30 to get closer to unit variance.
-\end{itemize}
+
+    - Select a subset of 21 electrodes present in all recordings.
+    - Exclude the first minute of the recordings and only use the first 2 minutes after that.
+    - Clip the amplitude values to the range of ±800 \(\mu\)V to reduce the effects of strong artifacts.
+    - Resample the data to 100 Hz to further speed up the computation.
+    - Divide by 30 to get closer to unit variance.
+
 
 ## Architecture and training details
 
@@ -135,9 +135,60 @@ The EEG and text embeddings are then fed into MLP projection heads, consisting o
 We train EEG-CLIP using the Adam optimizer with a learning rate of 5e-3 and weight decay of 5e-4. The model is trained for 20 epochs with a batch size of 64. We use the same training/testing split as in the TUAB dataset. Each recording is split into windows of length 1200, corresponding to a 12-second period, and with a stride of 519, which ensures all timesteps are predicted without any gap by our Deep4 model.
 
 ### Results and Discussion
-   - Present the main findings from your experiments, highlighting the performance of EEG-CLIP in various few-shot and zero-shot settings.
-   - Discuss the implications of your results, emphasizing the potential of EEG-CLIP for versatile EEG decoding.
-   - Compare your approach with existing methods and discuss any advantages or limitations.
+# Classification
+
+As shown in Table 1, on three of the four tasks, EEG-CLIP with a simple logistic regression classifier achieved strong performance, with balanced accuracy scores of 0.826 for pathological status, 0.687 for gender, and 0.713 for age. This indicates that the representations capture meaningful signal related to these key attributes.
+
+| Task name   | EEG-CLIP + LogReg | EEG-CLIP + MLP | Task-specific model | Irrelevant task + MLP |
+|-------------|-------------------|----------------|---------------------|----------------------|
+| pathological| 0.826             | 0.847          | **0.851**           | 0.741 (age)          |
+| gender      | 0.687             | 0.702          | **0.752**           | 0.667 (pathological) |
+| age         | 0.713             | 0.747          | **0.786**           | 0.685 (pathological) |
+| medication  | 0.633             | 0.615          | **0.685**           | 0.573 (pathological) |
+
+*Table 1: Classification results (balanced accuracy on eval set)*
+
+With a 3-layer MLP classifier head, performance improved further on all tasks, reaching 0.847, 0.702, and 0.747 for pathological status, gender, and age, respectively. The MLP can better exploit the relationships in the embedding space.
+
+As expected, the task-specific models achieve the top scores, as they are optimized end-to-end directly on the evaluation data distribution and labels. However, EEG-CLIP comes reasonably close, especially with the MLP head, demonstrating the generalizability of the representations.
+
+Compared to irrelevant task pretraining, EEG-CLIP substantially outperforms models pretrained on inconsistent targets like age or pathology. This confirms the importance of learning from the information contained in the medical reports.
+
+![EEG-CLIP's representations of EEG recordings from the eval set of TUAB (2d projection using TSNE)](imgs/labeled_representations.png)
+
+*Figure 1: EEG-CLIP's representations of EEG recordings from the eval set of TUAB (2d projection using TSNE)*
+
+# Zero-shot classification
+
+| Task name   | Balanced accuracy on eval set |
+|-------------|-------------------------------|
+| pathological| 0.755                         |
+| age         | 0.642                         |
+| gender      | 0.567                         |
+| medication  | 0.532                         |
+
+*Table 2: Zero-shot classification results*
+
+# Classification in a low-data regime
+
+| Task name   | EEG-CLIP + MLP | Task-specific model | Irrelevant task + MLP |
+|-------------|----------------|---------------------|----------------------|
+| pathological| 0.710          | **0.781**           | 0.531 (age)          |
+| gender      | 0.550          | **0.648**           | 0.512 (pathological) |
+| age         | **0.712**      | 0.621               | 0.631 (pathological) |
+| medication  | 0.551          | 0.575               | **0.598** (pathological) |
+
+*Table 3: Classification results in low-data regime (balanced accuracy on eval set)*
+
+On the pathological task, EEG-CLIP achieves 0.710 balanced accuracy on the held-out set. This approaches the 0.781 performance of a model trained from scratch with the same limited data. For age classification, EEG-CLIP even outperforms the specialized model. The medication task proves most challenging in the few-shot setting. However, all models struggle to exceed 0.6 accuracy, suggesting intrinsic difficulty of the binary prediction from small samples.
+
+Critically, EEG-CLIP substantially outperforms models pretrained on irrelevant tasks across all but one experiment. This demonstrates the concrete value of pretraining on aligned data, even when fine-tuning data is scarce.
+
+![Few-shot accuracy for each task, for different training set sizes as fractions of the original training set size](imgs/few_shot_results.png)
+
+*Figure 2: Few-shot accuracy for each task, for different training set sizes as fractions of the original training set size*
+
+Taken together, these quantitative results provide strong evidence for the quality and transferability of the multi-modal representations learned by EEG-CLIP. Performance across the range of evaluation paradigms demonstrates that it successfully encodes general semantic relationships between EEG and text. 
 
 ### Future Work and Conclusion
    - Discuss potential future directions for improving and extending the EEG-CLIP framework.
