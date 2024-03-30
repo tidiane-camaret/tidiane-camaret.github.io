@@ -37,7 +37,7 @@ CLIP is trained on a vast dataset of 400 million image-text pairs from diverse I
 |:--:| 
 | Illustration of the constrastive learning process |
 
-Inspired by the success of CLIP, we propose EEG-CLIP, a contrastive learning framework for aligning EEG time series data with corresponding clinical text descriptions. EEG-CLIP consists of two encoder networks: an EEG encoder $f_{\theta}$ and a text encoder $g_{\phi}$. The EEG encoder $f_{\theta}$ maps the input EEG time series $x_i$ to a fixed-dimensional embedding vector $f_{\theta}(x_i)$, while the text encoder $g_{\phi}$ maps the corresponding clinical text description $y_i$ to an embedding vector $g_{\phi}(y_i)$.
+Inspired by the success of CLIP, we design EEG-CLIP as a contrastive learning framework for aligning EEG time series data with corresponding clinical text descriptions. EEG-CLIP consists of two encoder networks: an EEG encoder $f_{\theta}$ and a text encoder $g_{\phi}$. The EEG encoder $f_{\theta}$ maps the input EEG time series $x_i$ to a fixed-dimensional embedding vector $f_{\theta}(x_i)$, while the text encoder $g_{\phi}$ maps the corresponding clinical text description $y_i$ to an embedding vector $g_{\phi}(y_i)$.
 
 The encoders are trained to minimize the contrastive loss $\mathcal{L}$, which encourages the embeddings of matching EEG-text pairs to be similar while pushing apart the embeddings of mismatched pairs. The similarity measure sim(.) used in EEG-CLIP is the cosine similarity between the normalized embeddings:
 
@@ -127,11 +127,10 @@ We preprocess the EEG data, taking inspiration from the preprocessing steps in [
 |![EEG-CLIP model architecture](/assets/images/eegclip/eegclip_architecture.png)|
 |:--:| 
 | Architecture of EEG-CLIP |
-The EEG-CLIP model is composed of two main components: an EEG encoder and a text encoder. These encoders are designed to process EEG recordings and medical reports, respectively, as depicted in Figure \ref{fig:model_arch}.
 
-For the EEG encoder, we use a convolutional neural network (CNN) called Deep4 -([Schirrmeister et al., 2018](https://arxiv.org/abs/1703.05051)), whose architecture is optimized for the classification of EEG data. The Deep4 Network features four convolution-max-pooling blocks, using batch normalization and dropout, followed by a dense softmax classification layer. This enables the model to learn hierarchical spatial-temporal representations of the EEG signal. The output is flattened and passed to a fully-connected layer to derive a 128-dimensional embedding.
+For the EEG encoder $f_{\theta}$, we use a convolutional neural network (CNN) called Deep4 -([Schirrmeister et al., 2018](https://arxiv.org/abs/1703.05051)), whose architecture is optimized for the classification of EEG data. The Deep4 Network features four convolution-max-pooling blocks, using batch normalization and dropout, followed by a dense softmax classification layer. This enables the model to learn hierarchical spatial-temporal representations of the EEG signal. The output is flattened and passed to a fully-connected layer to derive a 128-dimensional embedding.
 
-For the text encoder, we leverage pretrained text encoders based on the BERT architecture ([Devin et al](https://arxiv.org/abs/1810.04805)). Such transformer-based models have shown state-of-the-art performance on a variety of natural language processing tasks. The advantage of these pretrained models is that they provide rich linguistic representations that can be effectively transferred to downstream tasks through fine-tuning.
+For the text encoder $g_{\phi}$, we leverage pretrained text encoders based on the BERT architecture ([Devin et al](https://arxiv.org/abs/1810.04805)). Such transformer-based models have shown state-of-the-art performance on a variety of natural language processing tasks. The advantage of these pretrained models is that they provide rich linguistic representations that can be effectively transferred to downstream tasks through fine-tuning.
 
 The EEG and text embeddings are then fed into MLP projection heads, consisting of three fully-connected layers with ReLU activations. The final layer outputs a 64-dimensional projection of the embedding for contrastive learning. This architecture allows the model to learn alignments between EEG windows and corresponding medical report sentences in a shared embedding space. The contrastive loss enables the useful semantic features to be captured.
 
