@@ -13,7 +13,11 @@ use_math: true
 
 Recent advances in machine learning have led to deep neural networks being commonly applied to electroencephalogram (EEG) data for a variety of decoding tasks. EEG is a non-invasive method that records the electrical activity of the brain using electrodes placed on the scalp. While deep learning models can achieve state-of-the-art performance on specialized EEG tasks, most EEG analyses focus on training task-specific models for one type of classification or regression problem ([Heilmeyer et al., 2018](https://www.researchgate.net/publication/330475732_A_Large-Scale_Evaluation_Framework_for_EEG_Deep_Learning_Architectures))
 
-However, medical EEG recordings are often annotated with additional unstructured data in the form of free text reports written by neurologists and medical experts that can be exploited as a source of supervision. ![tuh_dataset](/assets/images/eegclip/tuh_dataset.jpg)
+However, medical EEG recordings are often annotated with additional unstructured data in the form of free text reports written by neurologists and medical experts that can be exploited as a source of supervision. 
+
+|![tuh_dataset](/assets/images/eegclip/tuh_dataset.jpg)|
+|:--:| 
+| Overview of an annotated EEG record |
 
 In the computer vision domain, Contrastive Language–Image Pre-training ([Radford et al., 2021](https://arxiv.org/abs/2103.00020))leverages this text-image pairing to learn visual representations that effectively transfer across tasks. Inspired by CLIP, we propose EEG-CLIP - a contrastive learning approach to align EEG time series data with corresponding clinical text descriptions in a shared embedding space. This work explores two central questions: (i) how textual reports can be incorporated into an EEG training pipeline, and (ii) to what extent this multimodal approach contributes to more general EEG representation learning.
 
@@ -29,7 +33,9 @@ where sim(.) is a measure of similarity, such as cosine similarity, and $\tau$ i
 
 CLIP is trained on a vast dataset of 400 million image-text pairs from diverse Internet sources with unstructured annotations. Through this natural language supervision, CLIP develops versatile image representations that achieve strong zero-shot inference on downstream tasks by querying the aligned embedding space.
 
-![clip](/assets/images/eegclip/clip_illustration.png)
+|![clip](/assets/images/eegclip/clip_illustration.png)|
+|:--:| 
+| Illustration of the constrastive learning process |
 
 Inspired by the success of CLIP, we propose EEG-CLIP, a contrastive learning framework for aligning EEG time series data with corresponding clinical text descriptions. EEG-CLIP consists of two encoder networks: an EEG encoder $f_{\theta}$ and a text encoder $g_{\phi}$. The EEG encoder $f_{\theta}$ maps the input EEG time series $x_i$ to a fixed-dimensional embedding vector $f_{\theta}(x_i)$, while the text encoder $g_{\phi}$ maps the corresponding clinical text description $y_i$ to an embedding vector $g_{\phi}(y_i)$.
 
@@ -107,7 +113,7 @@ We also perform zero-shot evaluation, using the embeddings of class-specific tex
 To further evaluate the generalization capability of the learned representations, we assess few-shot performance by training the classifier on a small subset, held out from the training of EEG-CLIP (Figure~\ref{fig:image2}). The limited labeled data setting reflects realistic clinical scenarios where large labeled datasets are difficult to acquire. New clinical applications often only have access to small patient datasets. As such, assessing few-shot transfer is important for demonstrating clinical utility and feasibility.
 
 ## EEG data preprocessing
-We preprocess the EEG data, taking inspiration from the preprocessing steps in \cite{schirrmeister_deep_2018}:
+We preprocess the EEG data, taking inspiration from the preprocessing steps in [Schirrmeister et al., 2018](https://arxiv.org/abs/1703.05051) The following steps are applied to the EEG recordings in the TUAB dataset:
 
     - Select a subset of 21 electrodes present in all recordings.
     - Exclude the first minute of the recordings and only use the first 2 minutes after that.
@@ -118,17 +124,14 @@ We preprocess the EEG data, taking inspiration from the preprocessing steps in \
 
 ## Architecture and training details
 
-\begin{figure}
-\centering
-\includegraphics[width=0.7\textwidth]{imgs/model_architecture.png} 
-\caption{Architecture of EEG-CLIP}
-\label{fig:model_arch}
-\end{figure}
+|![EEG-CLIP model architecture](/assets/images/eegclip/eegclip_architecture.png)|
+|:--:| 
+| Architecture of EEG-CLIP |
 The EEG-CLIP model is composed of two main components: an EEG encoder and a text encoder. These encoders are designed to process EEG recordings and medical reports, respectively, as depicted in Figure \ref{fig:model_arch}.
 
-For the EEG encoder, we use a convolutional neural network (CNN) called Deep4 \citep{schirrmeister_deep_2018}, whose architecture is optimized for the classification of EEG data. The Deep4 Network features four convolution-max-pooling blocks, using batch normalization and dropout, followed by a dense softmax classification layer. This enables the model to learn hierarchical spatial-temporal representations of the EEG signal. The output is flattened and passed to a fully-connected layer to derive a 128-dimensional embedding.
+For the EEG encoder, we use a convolutional neural network (CNN) called Deep4 -([Schirrmeister et al., 2018](https://arxiv.org/abs/1703.05051)), whose architecture is optimized for the classification of EEG data. The Deep4 Network features four convolution-max-pooling blocks, using batch normalization and dropout, followed by a dense softmax classification layer. This enables the model to learn hierarchical spatial-temporal representations of the EEG signal. The output is flattened and passed to a fully-connected layer to derive a 128-dimensional embedding.
 
-For the text encoder, we leverage pretrained text encoders based on the BERT architecture \citep{devlin_bert_2019}. Such transformer-based models have shown state-of-the-art performance on a variety of natural language processing tasks. The advantage of these pretrained models is that they provide rich linguistic representations that can be effectively transferred to downstream tasks through fine-tuning.
+For the text encoder, we leverage pretrained text encoders based on the BERT architecture ([Devin et al](https://arxiv.org/abs/1810.04805)). Such transformer-based models have shown state-of-the-art performance on a variety of natural language processing tasks. The advantage of these pretrained models is that they provide rich linguistic representations that can be effectively transferred to downstream tasks through fine-tuning.
 
 The EEG and text embeddings are then fed into MLP projection heads, consisting of three fully-connected layers with ReLU activations. The final layer outputs a 64-dimensional projection of the embedding for contrastive learning. This architecture allows the model to learn alignments between EEG windows and corresponding medical report sentences in a shared embedding space. The contrastive loss enables the useful semantic features to be captured.
 
