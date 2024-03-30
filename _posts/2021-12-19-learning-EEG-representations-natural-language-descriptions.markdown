@@ -156,9 +156,6 @@ As expected, the task-specific models achieve the top scores, as they are optimi
 
 Compared to irrelevant task pretraining, EEG-CLIP substantially outperforms models pretrained on inconsistent targets like age or pathology. This confirms the importance of learning from the information contained in the medical reports.
 
-![EEG-CLIP's representations of EEG recordings from the eval set of TUAB (2d projection using TSNE)](imgs/labeled_representations.png)
-
-*Figure 1: EEG-CLIP's representations of EEG recordings from the eval set of TUAB (2d projection using TSNE)*
 
 # Zero-shot classification
 
@@ -186,9 +183,11 @@ On the pathological task, EEG-CLIP achieves 0.710 balanced accuracy on the held-
 
 Critically, EEG-CLIP substantially outperforms models pretrained on irrelevant tasks across all but one experiment. This demonstrates the concrete value of pretraining on aligned data, even when fine-tuning data is scarce.
 
-![Few-shot accuracy for each task, for different training set sizes as fractions of the original training set size](imgs/few_shot_results.png)
 
-*Figure 2: Few-shot accuracy for each task, for different training set sizes as fractions of the original training set size*
+|![few_shot](/assets/images/eegclip/few_shot_results.png)|
+|:--:| 
+| * Few-shot accuracy for each task, for different training set sizes as fractions of the original training set size *|
+
 
 Taken together, these quantitative results provide strong evidence for the quality and transferability of the multi-modal representations learned by EEG-CLIP. Performance across the range of evaluation paradigms demonstrates that it successfully encodes general semantic relationships between EEG and text. 
 
