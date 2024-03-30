@@ -105,7 +105,34 @@ We also perform zero-shot evaluation, using the embeddings of class-specific tex
 
 # Classification in a low-data regime
 To further evaluate the generalization capability of the learned representations, we assess few-shot performance by training the classifier on a small subset, held out from the training of EEG-CLIP (Figure~\ref{fig:image2}). The limited labeled data setting reflects realistic clinical scenarios where large labeled datasets are difficult to acquire. New clinical applications often only have access to small patient datasets. As such, assessing few-shot transfer is important for demonstrating clinical utility and feasibility.
-   - Mention any data preprocessing steps or specific evaluation metrics used.
+
+## EEG data preprocessing
+We preprocess the EEG data, taking inspiration from the preprocessing steps in \cite{schirrmeister_deep_2018}:
+\begin{itemize}
+    \item Select a subset of 21 electrodes present in all recordings.
+    \item Exclude the first minute of the recordings and only use the first 2 minutes after that.
+    \item Clip the amplitude values to the range of ±800 \(\mu\)V to reduce the effects of strong artifacts.
+    \item Resample the data to 100 Hz to further speed up the computation.
+    \item Divide by 30 to get closer to unit variance.
+\end{itemize}
+
+## Architecture and training details
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{imgs/model_architecture.png} 
+\caption{Architecture of EEG-CLIP}
+\label{fig:model_arch}
+\end{figure}
+The EEG-CLIP model is composed of two main components: an EEG encoder and a text encoder. These encoders are designed to process EEG recordings and medical reports, respectively, as depicted in Figure \ref{fig:model_arch}.
+
+For the EEG encoder, we use a convolutional neural network (CNN) called Deep4 \citep{schirrmeister_deep_2018}, whose architecture is optimized for the classification of EEG data. The Deep4 Network features four convolution-max-pooling blocks, using batch normalization and dropout, followed by a dense softmax classification layer. This enables the model to learn hierarchical spatial-temporal representations of the EEG signal. The output is flattened and passed to a fully-connected layer to derive a 128-dimensional embedding.
+
+For the text encoder, we leverage pretrained text encoders based on the BERT architecture \citep{devlin_bert_2019}. Such transformer-based models have shown state-of-the-art performance on a variety of natural language processing tasks. The advantage of these pretrained models is that they provide rich linguistic representations that can be effectively transferred to downstream tasks through fine-tuning.
+
+The EEG and text embeddings are then fed into MLP projection heads, consisting of three fully-connected layers with ReLU activations. The final layer outputs a 64-dimensional projection of the embedding for contrastive learning. This architecture allows the model to learn alignments between EEG windows and corresponding medical report sentences in a shared embedding space. The contrastive loss enables the useful semantic features to be captured.
+
+We train EEG-CLIP using the Adam optimizer with a learning rate of 5e-3 and weight decay of 5e-4. The model is trained for 20 epochs with a batch size of 64. We use the same training/testing split as in the TUAB dataset. Each recording is split into windows of length 1200, corresponding to a 12-second period, and with a stride of 519, which ensures all timesteps are predicted without any gap by our Deep4 model.
 
 ### Results and Discussion
    - Present the main findings from your experiments, highlighting the performance of EEG-CLIP in various few-shot and zero-shot settings.
