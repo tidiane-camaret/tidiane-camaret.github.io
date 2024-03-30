@@ -19,7 +19,7 @@ In the computer vision domain, Contrastive Language–Image Pre-training [Radfor
 
 We demonstrate EEG-CLIP's potential for versatile few-shot and zero-shot EEG decoding across multiple tasks and datasets. EEG-CLIP achieves nontrivial zero-shot classification results. Our few-shot results show gains over previous transfer learning techniques and task-specific models in low-data regimes. This presents a promising approach to enable easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer training examples, potentially facilitating EEG analysis in medical research.
 
-## Methodology
+### Methodology
 
 Contrastive self-supervised learning has recently emerged as a powerful approach for learning general visual representations. Models like CLIP are trained to align image $x_i$ and corresponding text $y_i$ embeddings by minimizing a contrastive loss $\mathcal{L}$:
 
@@ -38,10 +38,10 @@ The encoders are trained to minimize the contrastive loss $\mathcal{L}$, which e
 $\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{\lVert f_{\theta}(x_i)\rVert \lVert g_{\phi}(y_j)\rVert}$
 
 
-## Experimental Setup
+### Experimental Setup
 In this section, we describe the dataset used for training and evaluating EEG-CLIP, as well as the experimental settings and evaluation metrics employed to assess its performance. We focus on the Temple University Hospital EEG Corpus [Obeid and Picone, 2016], a large-scale dataset containing EEG recordings and their corresponding medical reports. The dataset's size and diversity make it well-suited for training deep learning models to learn general EEG representations.
 
-# Dataset Description
+## Dataset Description
 
 The Temple University Hospital EEG Corpus [Obeid and Picone, 2016] is a comprehensive dataset containing over 25,000 EEG recordings collected from more than 14,000 patients between 2002 and 2015. The dataset's extensive size and variety of EEG recordings make it a valuable resource for training deep learning models to decode information such as pathology, age, and gender from EEG signals and generalize to unseen recordings.
 
@@ -74,15 +74,45 @@ The medical reports in the TUAB dataset are structured into 15 distinct sections
 | ACTIVATION PROCEDURES          | 9                 | 3                                      |
 
 
-   - Explain the few-shot and zero-shot settings used to assess the performance of EEG-CLIP.
+## Evaluation metrics 
+
+Unlike models trained for a specific downstream task, EEG-CLIP aims to learn broadly useful representations that capture semantic relationships between EEG signals and text. As such, evaluation methods must aim to quantify the general quality and transferability of the learned representations.
+
+Using the labels, meta-information, and medical reports provided in the TUAB dataset, we select four decoding tasks:
+
+    -  "pathological": Decode whether the recording was diagnosed as normal or pathological.
+    -  "age": Decode whether the age of the patient is smaller than or equal to 50, or greater than 50.
+    -  "gender": Decode the declared gender of the patient.
+    -  "medication": Decode whether the medical report contains at least one of the three most common anticonvulsant medications ("keppra", "dilantin", "depakote").
+
+
+We design multiple methods to evaluate the model, as described in the following subsections.
+
+# Classification 
+In this method, we use the representations learned by the EEG encoder of EEG-CLIP as features for the four classification tasks. The encoder representations are kept frozen, while a classifier is trained and evaluated on the "train" and "eval" sections of TUAB (Figure~\ref{fig:image1}). This enables us to assess whether EEG-CLIP has learned to compress the discriminative information relevant for the classification tasks into its embeddings.
+
+We compare this approach against two baseline models with the same architecture as the EEG encoder:
+
+
+    - The first baseline is a fully trainable model. This provides an upper bound on performance since the model can directly optimize for each task. Comparing EEG-CLIP to the trainable model reveals how much room there is for improvement over the fixed EEG-CLIP features.
+    - The second baseline is a model trained on an unrelated task, whose features are frozen while only the classification head is trainable. As these task-unrelated representations are not specialized for the actual decoding tasks, this serves as a lower bound on expected performance. The gap between the lower baseline and EEG-CLIP quantifies the benefits of our contrastive approach that can learn from all information contained in the medical reports.
+
+
+By situating EEG-CLIP between these upper and lower bounds, we can better isolate the contributions of the learned representations themselves. Smaller gaps to the trainable model and larger gaps from the task-unrelated features indicate higher-quality multimodal representations.
+
+# Zero-shot classification
+We also perform zero-shot evaluation, using the embeddings of class-specific text prompts as class prototypes for the trained EEG-CLIP model. For a given classification task, we define a typical prompt sentence for each class (see Table~\ref{prompts-zero-shot}) and calculate the distance of an EEG recording to those sentences in the shared embedding space. This allows us to measure the classification performance of EEG-CLIP without any training on the classification task labels.
+
+# Classification in a low-data regime
+To further evaluate the generalization capability of the learned representations, we assess few-shot performance by training the classifier on a small subset, held out from the training of EEG-CLIP (Figure~\ref{fig:image2}). The limited labeled data setting reflects realistic clinical scenarios where large labeled datasets are difficult to acquire. New clinical applications often only have access to small patient datasets. As such, assessing few-shot transfer is important for demonstrating clinical utility and feasibility.
    - Mention any data preprocessing steps or specific evaluation metrics used.
 
-## Results and Discussion
+### Results and Discussion
    - Present the main findings from your experiments, highlighting the performance of EEG-CLIP in various few-shot and zero-shot settings.
    - Discuss the implications of your results, emphasizing the potential of EEG-CLIP for versatile EEG decoding.
    - Compare your approach with existing methods and discuss any advantages or limitations.
 
-## Future Work and Conclusion
+### Future Work and Conclusion
    - Discuss potential future directions for improving and extending the EEG-CLIP framework.
    - Highlight the significance of your work in enabling easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer examples.
    - Conclude by summarizing the main contributions of your work and its potential impact on EEG analysis in medical research.
