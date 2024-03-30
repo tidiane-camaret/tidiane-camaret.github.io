@@ -86,10 +86,10 @@ Unlike models trained for a specific downstream task, EEG-CLIP aims to learn bro
 
 Using the labels, meta-information, and medical reports provided in the TUAB dataset, we select four decoding tasks:
 
-    -  "pathological": Decode whether the recording was diagnosed as normal or pathological.
-    -  "age": Decode whether the age of the patient is smaller than or equal to 50, or greater than 50.
-    -  "gender": Decode the declared gender of the patient.
-    -  "medication": Decode whether the medical report contains at least one of the three most common anticonvulsant medications ("keppra", "dilantin", "depakote").
+- "pathological": Decode whether the recording was diagnosed as normal or pathological.
+- "age": Decode whether the age of the patient is smaller than or equal to 50, or greater than 50.
+- "gender": Decode the declared gender of the patient.
+- "medication": Decode whether the medical report contains at least one of the three most common anticonvulsant medications ("keppra", "dilantin", "depakote").
 
 
 We design multiple methods to evaluate the model, as described in the following subsections.
@@ -100,8 +100,8 @@ In this method, we use the representations learned by the EEG encoder of EEG-CLI
 We compare this approach against two baseline models with the same architecture as the EEG encoder:
 
 
-    - The first baseline is a fully trainable model. This provides an upper bound on performance since the model can directly optimize for each task. Comparing EEG-CLIP to the trainable model reveals how much room there is for improvement over the fixed EEG-CLIP features.
-    - The second baseline is a model trained on an unrelated task, whose features are frozen while only the classification head is trainable. As these task-unrelated representations are not specialized for the actual decoding tasks, this serves as a lower bound on expected performance. The gap between the lower baseline and EEG-CLIP quantifies the benefits of our contrastive approach that can learn from all information contained in the medical reports.
+- The first baseline is a fully trainable model. This provides an upper bound on performance since the model can directly optimize for each task. Comparing EEG-CLIP to the trainable model reveals how much room there is for improvement over the fixed EEG-CLIP features.
+- The second baseline is a model trained on an unrelated task, whose features are frozen while only the classification head is trainable. As these task-unrelated representations are not specialized for the actual decoding tasks, this serves as a lower bound on expected performance. The gap between the lower baseline and EEG-CLIP quantifies the benefits of our contrastive approach that can learn from all information contained in the medical reports.
 
 
 By situating EEG-CLIP between these upper and lower bounds, we can better isolate the contributions of the learned representations themselves. Smaller gaps to the trainable model and larger gaps from the task-unrelated features indicate higher-quality multimodal representations.
@@ -115,16 +115,16 @@ To further evaluate the generalization capability of the learned representations
 ## EEG data preprocessing
 We preprocess the EEG data, taking inspiration from the preprocessing steps in [Schirrmeister et al., 2018](https://arxiv.org/abs/1703.05051) The following steps are applied to the EEG recordings in the TUAB dataset:
 
-    - Select a subset of 21 electrodes present in all recordings.
-    - Exclude the first minute of the recordings and only use the first 2 minutes after that.
-    - Clip the amplitude values to the range of ±800 \(\mu\)V to reduce the effects of strong artifacts.
-    - Resample the data to 100 Hz to further speed up the computation.
-    - Divide by 30 to get closer to unit variance.
+- Select a subset of 21 electrodes present in all recordings.
+- Exclude the first minute of the recordings and only use the first 2 minutes after that.
+- Clip the amplitude values to the range of ±800 \(\mu\)V to reduce the effects of strong artifacts.
+- Resample the data to 100 Hz to further speed up the computation.
+- Divide by 30 to get closer to unit variance.
 
 
 ## Architecture and training details
 
-|![EEG-CLIP model architecture](/assets/images/eegclip/eegclip_architecture.png)|
+|![architecture](/assets/images/eegclip/eegclip_architecture.png)|
 |:--:| 
 | Architecture of EEG-CLIP |
 
