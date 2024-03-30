@@ -145,10 +145,3 @@ We train EEG-CLIP using the Adam optimizer with a learning rate of 5e-3 and weig
    - Conclude by summarizing the main contributions of your work and its potential impact on EEG analysis in medical research.
 
 
-
-Most of the modern methods are flexible enough to tackle those challenges. However, they usually **require a large amount of labelled data** to be trained on, which means that in order to use them, we first need to gather thousands of text images of which we know the content beforehand. In some cases, such as low-ressource or extinct languages, this mandatory step is cumbersome.
-
-We will here explore a method presented by **Gupta, Vedaldi, Zisserman** in their paper [Learning to read by spelling](https://arxiv.org/pdf/1809.08675.pdf), which achieves comparable results to modern methods, without relying on labeled data at all. 
-
-We will first show the principles behind this method, and then try to reproduce those results on our own. [Our implementation can be found and tested here.](https://github.com/tidiane-camaret/read_by_spelling_impl)
-
