@@ -23,7 +23,7 @@ We demonstrate EEG-CLIP's potential for versatile few-shot and zero-shot EEG dec
 
 Contrastive self-supervised learning has recently emerged as a powerful approach for learning general visual representations. Models like CLIP [Radford et al., 2021] are trained to align image $x_i$ and corresponding text $y_i$ embeddings by minimizing a contrastive loss $\mathcal{L}$:
 
-$$\mathcal{L}=\sum_{i=1}^{N}-\log \frac{\exp(\text{sim}(x_i,y_i)/\tau)}{\sum_{j=1}^{N}\exp(\text{sim}(x_i,y_j)/\tau)}$$
+$\mathcal{L}=\sum_{i=1}^{N}-\log \frac{\exp(\text{sim}(x_i,y_i)/\tau)}{\sum_{j=1}^{N}\exp(\text{sim}(x_i,y_j)/\tau)}$
 
 where sim(.) is a measure of similarity, such as cosine similarity, and $\tau$ is a temperature parameter that controls the softness of the distribution. This objective brings matching image-text pairs closer and separates mismatched pairs in the learned embedding space.
 
@@ -33,7 +33,7 @@ Inspired by the success of CLIP, we propose EEG-CLIP, a contrastive learning fra
 
 The encoders are trained to minimize the contrastive loss $\mathcal{L}$, which encourages the embeddings of matching EEG-text pairs to be similar while pushing apart the embeddings of mismatched pairs. The similarity measure sim(.) used in EEG-CLIP is the cosine similarity between the normalized embeddings:
 
-$$\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{f_{\theta}(x_i) g_{\phi}(y_j)}$$
+$\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{f_{\theta}(x_i) g_{\phi}(y_j)}$
 
 
 # Experimental Setup
@@ -51,7 +51,7 @@ In addition to the binary pathology labels, each recording in the TUAB dataset i
 - "gender": A string indicating the patient's gender, either "M" for male or "F" for female.
 - "report": A medical report written in natural language, providing a detailed description of the EEG findings and clinical interpretation.
 
-The medical reports in the TUAB dataset are structured into 15 distinct sections, each focusing on a specific aspect of the EEG analysis. Table 1 provides an overview of these sections and their respective contents.
+The medical reports in the TUAB dataset are structured into 15 distinct sections, each focusing on a specific aspect of the EEG analysis. the following provides an overview of these sections and their respective contents.
 
 | Record Section                | Non-empty Entries | Average Word Count (Non-empty Entries) |
 |--------------------------------|-------------------|----------------------------------------|
