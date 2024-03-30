@@ -11,15 +11,15 @@ use_math: true
 
 {% include _mathjax_support.html%}
 
-Recent advances in machine learning have led to deep neural networks being commonly applied to electroencephalogram (EEG) data for a variety of decoding tasks. EEG is a non-invasive method that records the electrical activity of the brain using electrodes placed on the scalp. While deep learning models can achieve state-of-the-art performance on specialized EEG tasks, most EEG analyses focus on training task-specific models for one type of classification or regression problem [Heilmeyer et al., 2018].
+Recent advances in machine learning have led to deep neural networks being commonly applied to electroencephalogram (EEG) data for a variety of decoding tasks. EEG is a non-invasive method that records the electrical activity of the brain using electrodes placed on the scalp. While deep learning models can achieve state-of-the-art performance on specialized EEG tasks, most EEG analyses focus on training task-specific models for one type of classification or regression problem [Heilmeyer et al., 2018](https://www.researchgate.net/publication/330475732_A_Large-Scale_Evaluation_Framework_for_EEG_Deep_Learning_Architectures)
 
-However, medical EEG recordings are often annotated with additional unstructured data in the form of free text reports written by neurologists and medical experts that can be exploited as a source of supervision. ![https://www.frontiersin.org/articles/10.3389/fnins.2016.00196/full](/assets/images/eegclip/tuh_dataset.jpg)
+However, medical EEG recordings are often annotated with additional unstructured data in the form of free text reports written by neurologists and medical experts that can be exploited as a source of supervision. ![tuh_dataset](/assets/images/eegclip/tuh_dataset.jpg)
 
-In the computer vision domain, Contrastive Language–Image Pre-training [Radford et al., 2021] (CLIP) leverages this text-image pairing to learn visual representations that effectively transfer across tasks. Inspired by CLIP, we propose EEG-Clip - a contrastive learning approach to align EEG time series data with corresponding clinical text descriptions in a shared embedding space. This work explores two central questions: (i) how textual reports can be incorporated into an EEG training pipeline, and (ii) to what extent this multimodal approach contributes to more general EEG representation learning.
+In the computer vision domain, Contrastive Language–Image Pre-training [Radford et al., 2021](https://arxiv.org/abs/2103.00020) leverages this text-image pairing to learn visual representations that effectively transfer across tasks. Inspired by CLIP, we propose EEG-Clip - a contrastive learning approach to align EEG time series data with corresponding clinical text descriptions in a shared embedding space. This work explores two central questions: (i) how textual reports can be incorporated into an EEG training pipeline, and (ii) to what extent this multimodal approach contributes to more general EEG representation learning.
 
 We demonstrate EEG-CLIP's potential for versatile few-shot and zero-shot EEG decoding across multiple tasks and datasets. EEG-CLIP achieves nontrivial zero-shot classification results. Our few-shot results show gains over previous transfer learning techniques and task-specific models in low-data regimes. This presents a promising approach to enable easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer training examples, potentially facilitating EEG analysis in medical research.
 
-# Methodology
+## Methodology
 
 Contrastive self-supervised learning has recently emerged as a powerful approach for learning general visual representations. Models like CLIP [Radford et al., 2021] are trained to align image $x_i$ and corresponding text $y_i$ embeddings by minimizing a contrastive loss $\mathcal{L}$:
 
@@ -36,10 +36,10 @@ The encoders are trained to minimize the contrastive loss $\mathcal{L}$, which e
 $\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{f_{\theta}(x_i) g_{\phi}(y_j)}$
 
 
-# Experimental Setup
+## Experimental Setup
 In this section, we describe the dataset used for training and evaluating EEG-CLIP, as well as the experimental settings and evaluation metrics employed to assess its performance. We focus on the Temple University Hospital EEG Corpus [Obeid and Picone, 2016], a large-scale dataset containing EEG recordings and their corresponding medical reports. The dataset's size and diversity make it well-suited for training deep learning models to learn general EEG representations.
 
-## Dataset Description
+# Dataset Description
 
 The Temple University Hospital EEG Corpus [Obeid and Picone, 2016] is a comprehensive dataset containing over 25,000 EEG recordings collected from more than 14,000 patients between 2002 and 2015. The dataset's extensive size and variety of EEG recordings make it a valuable resource for training deep learning models to decode information such as pathology, age, and gender from EEG signals and generalize to unseen recordings.
 
@@ -75,22 +75,17 @@ The medical reports in the TUAB dataset are structured into 15 distinct sections
    - Explain the few-shot and zero-shot settings used to assess the performance of EEG-CLIP.
    - Mention any data preprocessing steps or specific evaluation metrics used.
 
-# Results and Discussion
+## Results and Discussion
    - Present the main findings from your experiments, highlighting the performance of EEG-CLIP in various few-shot and zero-shot settings.
    - Discuss the implications of your results, emphasizing the potential of EEG-CLIP for versatile EEG decoding.
    - Compare your approach with existing methods and discuss any advantages or limitations.
 
-# Future Work and Conclusion
+## Future Work and Conclusion
    - Discuss potential future directions for improving and extending the EEG-CLIP framework.
    - Highlight the significance of your work in enabling easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer examples.
    - Conclude by summarizing the main contributions of your work and its potential impact on EEG analysis in medical research.
 
 
-![img1](/assets/images/unsupervised_text_recongition/im1.png)
-
-As humans, we are able to quickly identify written characters, but designing automatic methods achieving the same result is trickier : Same characters can be written with different fonts, sizes or colors. Some characters may also sometimes overlap each other, which makes individual character identification harder, and on top of that, images may be tainted with additional noise (paper texture, accidental ink stains ...) 
-
-![img2](/assets/images/unsupervised_text_recognition/im2.png)
 
 Most of the modern methods are flexible enough to tackle those challenges. However, they usually **require a large amount of labelled data** to be trained on, which means that in order to use them, we first need to gather thousands of text images of which we know the content beforehand. In some cases, such as low-ressource or extinct languages, this mandatory step is cumbersome.
 
