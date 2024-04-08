@@ -113,6 +113,15 @@ We also perform zero-shot evaluation, using the embeddings of class-specific tex
 |:--:| 
 | Illustration of the zero-shot classification task |
 
+| Task name   | Prompt a                          | Prompt b                          |
+|-------------|-----------------------------------|-----------------------------------|
+| pathological| "This is a normal recording"      | "This is an abnormal recording"   |
+| age         | "The patient is over 50 years old"| "The patient is under 50 years old" |
+| gender      | "The patient is male"             | "The patient is female"           |
+| medication  | "No anti-epileptic drugs were prescribed to the patient" | "Anti-epileptic drugs were prescribed to the patient" |
+
+
+*Table 1: Prompts used for zero-shot classification*
 ### Classification in a low-data regime
 To further evaluate the generalization capability of the learned representations, we assess few-shot performance by training the classifier on a small subset, held out from the training of EEG-CLIP. The limited labeled data setting reflects realistic clinical scenarios where large labeled datasets are difficult to acquire. New clinical applications often only have access to small patient datasets. As such, assessing few-shot transfer is important for demonstrating clinical utility and feasibility.
 
@@ -143,7 +152,7 @@ We train EEG-CLIP using the Adam optimizer with a learning rate of 5e-3 and weig
 # Results and Discussion
 ### Classification
 
-As shown in Table 1, on three of the four tasks, EEG-CLIP with a simple logistic regression classifier achieved strong performance, with balanced accuracy scores of 0.826 for pathological status, 0.687 for gender, and 0.713 for age. This indicates that the representations capture meaningful signal related to these key attributes.
+As shown in Table 2, on three of the four tasks, EEG-CLIP with a simple logistic regression classifier achieved strong performance, with balanced accuracy scores of 0.826 for pathological status, 0.687 for gender, and 0.713 for age. This indicates that the representations capture meaningful signal related to these key attributes.
 
 | Task name   | EEG-CLIP + LogReg | EEG-CLIP + MLP | Task-specific model | Irrelevant task + MLP |
 |-------------|-------------------|----------------|---------------------|----------------------|
@@ -152,7 +161,7 @@ As shown in Table 1, on three of the four tasks, EEG-CLIP with a simple logistic
 | age         | 0.713             | 0.747          | **0.786**           | 0.685 (pathological) |
 | medication  | 0.633             | 0.615          | **0.685**           | 0.573 (pathological) |
 
-*Table 1: Classification results (balanced accuracy on eval set)*
+*Table 2: Classification results (balanced accuracy on eval set)*
 
 With a 3-layer MLP classifier head, performance improved further on all tasks, reaching 0.847, 0.702, and 0.747 for pathological status, gender, and age, respectively. The MLP can better exploit the relationships in the embedding space.
 
@@ -170,7 +179,7 @@ Compared to irrelevant task pretraining, EEG-CLIP substantially outperforms mode
 | gender      | 0.567                         |
 | medication  | 0.532                         |
 
-*Table 2: Zero-shot classification results*
+*Table 3: Zero-shot classification results*
 
 ### Classification in a low-data regime
 
@@ -181,7 +190,7 @@ Compared to irrelevant task pretraining, EEG-CLIP substantially outperforms mode
 | age         | **0.712**      | 0.621               | 0.631 (pathological) |
 | medication  | 0.551          | 0.575               | **0.598** (pathological) |
 
-*Table 3: Classification results in low-data regime (balanced accuracy on eval set)*
+*Table 4: Classification results in low-data regime (balanced accuracy on eval set)*
 
 On the pathological task, EEG-CLIP achieves 0.710 balanced accuracy on the held-out set. This approaches the 0.781 performance of a model trained from scratch with the same limited data. For age classification, EEG-CLIP even outperforms the specialized model. The medication task proves most challenging in the few-shot setting. However, all models struggle to exceed 0.6 accuracy, suggesting intrinsic difficulty of the binary prediction from small samples.
 
