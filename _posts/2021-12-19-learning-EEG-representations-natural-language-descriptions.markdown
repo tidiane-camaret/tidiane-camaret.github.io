@@ -19,7 +19,7 @@ However, medical EEG recordings are often annotated with additional unstructured
 |:--:| 
 | Overview of an annotated EEG record |
 
-In the computer vision domain, Contrastive Language–Image Pre-training ([Radford et al., 2021](https://arxiv.org/abs/2103.00020))leverages this text-image pairing to learn visual representations that effectively transfer across tasks. Inspired by CLIP, we propose EEG-CLIP - a contrastive learning approach to align EEG time series data with corresponding clinical text descriptions in a shared embedding space. This work explores two central questions: (i) how textual reports can be incorporated into an EEG training pipeline, and (ii) to what extent this multimodal approach contributes to more general EEG representation learning.
+In the computer vision domain, Contrastive Language–Image Pre-training ([Radford et al., 2021](https://arxiv.org/abs/2103.00020)) leverages this text-image pairing to learn visual representations that effectively transfer across tasks. Inspired by CLIP, we propose EEG-CLIP - a contrastive learning approach to align EEG time series data with corresponding clinical text descriptions in a shared embedding space. This work explores two central questions: (i) how textual reports can be incorporated into an EEG training pipeline, and (ii) to what extent this multimodal approach contributes to more general EEG representation learning.
 
 We demonstrate EEG-CLIP's potential for versatile few-shot and zero-shot EEG decoding across multiple tasks and datasets. EEG-CLIP achieves nontrivial zero-shot classification results. Our few-shot results show gains over previous transfer learning techniques and task-specific models in low-data regimes. This presents a promising approach to enable easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer training examples, potentially facilitating EEG analysis in medical research.
 
@@ -45,11 +45,11 @@ $\text{sim}(x_i, y_j) = \frac{f_{\theta}(x_i)^\top g_{\phi}(y_j)}{\lVert f_{\the
 
 
 # Experimental Setup
-In this section, we describe the dataset used for training and evaluating EEG-CLIP, as well as the experimental settings and evaluation metrics employed to assess its performance. We focus on the Temple University Hospital EEG Corpus [Obeid and Picone, 2016], a large-scale dataset containing EEG recordings and their corresponding medical reports. The dataset's size and diversity make it well-suited for training deep learning models to learn general EEG representations.
+In this section, we describe the dataset used for training and evaluating EEG-CLIP, as well as the experimental settings and evaluation metrics employed to assess its performance. We focus on the Temple University Hospital EEG Corpus [Obeid and Picone, 2016](https://isip.piconepress.com/projects/tuh_eeg/html/overview.shtml), a large-scale dataset containing EEG recordings and their corresponding medical reports. The dataset's size and diversity make it well-suited for training deep learning models to learn general EEG representations.
 
 ## Dataset Description
 
-The Temple University Hospital EEG Corpus [Obeid and Picone, 2016] is a comprehensive dataset containing over 25,000 EEG recordings collected from more than 14,000 patients between 2002 and 2015. The dataset's extensive size and variety of EEG recordings make it a valuable resource for training deep learning models to decode information such as pathology, age, and gender from EEG signals and generalize to unseen recordings.
+The Temple University Hospital EEG Corpus [Obeid and Picone, 2016](https://isip.piconepress.com/projects/tuh_eeg/html/overview.shtml) is a comprehensive dataset containing over 25,000 EEG recordings collected from more than 14,000 patients between 2002 and 2015. The dataset's extensive size and variety of EEG recordings make it a valuable resource for training deep learning models to decode information such as pathology, age, and gender from EEG signals and generalize to unseen recordings.
 
 For our experiments, we utilize the TUH Abnormal dataset (TUAB), a demographically balanced subset of the corpus with binary labels indicating the pathological or nonpathological diagnosis of each recording. The TUAB dataset is partitioned into a training set, consisting of 1,387 normal and 1,398 abnormal files, and an evaluation set, containing 150 normal and 130 abnormal files. The dataset encompasses a wide range of pathological conditions, ensuring a diverse representation of EEG abnormalities.
 
@@ -95,7 +95,7 @@ Using the labels, meta-information, and medical reports provided in the TUAB dat
 We design multiple methods to evaluate the model, as described in the following subsections.
 
 ### Classification 
-In this method, we use the representations learned by the EEG encoder of EEG-CLIP as features for the four classification tasks. The encoder representations are kept frozen, while a classifier is trained and evaluated on the "train" and "eval" sections of TUAB (Figure~\ref{fig:image1}). This enables us to assess whether EEG-CLIP has learned to compress the discriminative information relevant for the classification tasks into its embeddings.
+In this method, we use the representations learned by the EEG encoder of EEG-CLIP as features for the four classification tasks. The encoder representations are kept frozen, while a classifier is trained and evaluated on the "train" and "eval" sections of TUAB. This enables us to assess whether EEG-CLIP has learned to compress the discriminative information relevant for the classification tasks into its embeddings.
 
 We compare this approach against two baseline models with the same architecture as the EEG encoder:
 
@@ -107,10 +107,14 @@ We compare this approach against two baseline models with the same architecture 
 By situating EEG-CLIP between these upper and lower bounds, we can better isolate the contributions of the learned representations themselves. Smaller gaps to the trainable model and larger gaps from the task-unrelated features indicate higher-quality multimodal representations.
 
 ### Zero-shot classification
-We also perform zero-shot evaluation, using the embeddings of class-specific text prompts as class prototypes for the trained EEG-CLIP model. For a given classification task, we define a typical prompt sentence for each class (see Table~\ref{prompts-zero-shot}) and calculate the distance of an EEG recording to those sentences in the shared embedding space. This allows us to measure the classification performance of EEG-CLIP without any training on the classification task labels.
+We also perform zero-shot evaluation, using the embeddings of class-specific text prompts as class prototypes for the trained EEG-CLIP model. For a given classification task, we define a typical prompt sentence for each class and calculate the distance of an EEG recording to those sentences in the shared embedding space. This allows us to measure the classification performance of EEG-CLIP without any training on the classification task labels.
+
+|![zc](/assets/images/eegclip/zero_shot.png)|
+|:--:| 
+| Illustration of the zero-shot classification task |
 
 ### Classification in a low-data regime
-To further evaluate the generalization capability of the learned representations, we assess few-shot performance by training the classifier on a small subset, held out from the training of EEG-CLIP (Figure~\ref{fig:image2}). The limited labeled data setting reflects realistic clinical scenarios where large labeled datasets are difficult to acquire. New clinical applications often only have access to small patient datasets. As such, assessing few-shot transfer is important for demonstrating clinical utility and feasibility.
+To further evaluate the generalization capability of the learned representations, we assess few-shot performance by training the classifier on a small subset, held out from the training of EEG-CLIP. The limited labeled data setting reflects realistic clinical scenarios where large labeled datasets are difficult to acquire. New clinical applications often only have access to small patient datasets. As such, assessing few-shot transfer is important for demonstrating clinical utility and feasibility.
 
 ## EEG data preprocessing
 We preprocess the EEG data, taking inspiration from the preprocessing steps in [Schirrmeister et al., 2018](https://arxiv.org/abs/1703.05051) The following steps are applied to the EEG recordings in the TUAB dataset:
@@ -192,8 +196,12 @@ Critically, EEG-CLIP substantially outperforms models pretrained on irrelevant t
 Taken together, these quantitative results provide strong evidence for the quality and transferability of the multi-modal representations learned by EEG-CLIP. Performance across the range of evaluation paradigms demonstrates that it successfully encodes general semantic relationships between EEG and text. 
 
 # Future Work and Conclusion
-   - Discuss potential future directions for improving and extending the EEG-CLIP framework.
-   - Highlight the significance of your work in enabling easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer examples.
-   - Conclude by summarizing the main contributions of your work and its potential impact on EEG analysis in medical research.
+The EEG-CLIP framework presents a promising approach for learning versatile representations from EEG data by leveraging the information contained in medical reports. However, there are several potential avenues for future research to further improve and extend this framework.
 
+One direction is to expand the training data by including more EEG recordings and their corresponding medical reports. As the EEG-CLIP framework relies on EEG-text pairs and does not require additional labeling, increasing the size and diversity of the training dataset could lead to more robust and generalizable representations. This is particularly advantageous since obtaining EEG-text pairs is relatively inexpensive compared to manually labeling EEG data for specific tasks.
 
+Another exciting future direction is to explore the development of general-purpose pretrained EEG encoders using the EEG-CLIP framework. Similar to how pretrained language models like BERT have revolutionized natural language processing, pretrained EEG encoders could serve as a foundation for various EEG-related tasks. For example, pretrained encoders could be fine-tuned for specific applications such as motor task classification, emotion recognition, or sleep stage scoring, potentially reducing the need for large labeled datasets in each individual domain.
+
+The significance of the EEG-CLIP framework lies in its ability to enable easier analyses of diverse decoding questions through zero-shot decoding or training task-specific models from fewer examples. By learning to align EEG signals with their textual descriptions, EEG-CLIP can perform classification tasks without explicit training, as demonstrated by the zero-shot classification results. Furthermore, the model's strong performance in low-data regimes highlights its potential for adapting to new tasks with limited labeled data, which is particularly valuable in medical research where obtaining large annotated datasets can be challenging.
+
+In conclusion, the EEG-CLIP framework introduces a novel approach for learning versatile representations from EEG data by leveraging the information contained in medical reports through contrastive learning. The main contributions of this work include the development of a multimodal contrastive method that aligns EEG signals with their textual descriptions, the demonstration of its ability to outperform task-specific models in low-data regimes, and the showcase of zero-shot classification capabilities. The potential impact of EEG-CLIP on EEG analysis in medical research is significant, as it could facilitate the exploration of diverse decoding questions and enable more efficient development of EEG-based applications. With future extensions such as expanding the training data and building general-purpose pretrained EEG encoders, the EEG-CLIP framework has the potential to revolutionize the field of EEG analysis and contribute to advancements in neurological disorder diagnosis, brain-computer interfaces, and beyond
