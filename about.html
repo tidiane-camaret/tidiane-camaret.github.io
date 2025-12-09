@@ -4,14 +4,13 @@ title: About
 permalink: /about/
 ---
 
-<p style="font-size: 1.1rem; line-height: 1.8;"></p>
-
+<p style="font-size: 1.1rem; line-height: 1.8;">
 Hello! I'm Tidiane Camaret Ndir, a Machine Learning Researcher at the University Medical Center of Freiburg, Germany. 
 My work is dedicated to building intelligent systems that are inherently generalizable, and designed for human interaction.
-
+<br><br>
 I believe the future of intelligent systems, especially in medicine, requires models that not only perform complex tasks 
-but can also take direct human feedback as input, allowing them to generalize without requiring extensive fine-tuning.
-
+accurately, but can also take direct human feedback as input, allowing them to generalize without requiring extensive fine-tuning.
+<br><br>
 This blog is where I explore the methodologies behind building these robust, adaptable, and interactive AI systems. Thanks for stopping by!
 </p>
 
@@ -63,42 +62,3 @@ This blog is where I explore the methodologies behind building these robust, ada
   </div>
 </div>
 
----
-
-<h2>Recent Posts</h2>
-
-{% assign en_posts = site.posts | where: "lang", "en" %}
-
-{% if en_posts.size > 0 %}
-  <ul class="post-list recent-posts">
-    {% for post in en_posts limit: 3 %}
-    <li>
-      <a class="post-link" href="{{ post.url | relative_url }}">
-        {{ post.title | escape }}
-      </a>
-
-      <div class="post-meta">
-        <time datetime="{{ post.date | date_to_xmlschema }}">
-          {{ post.date | date: "%B %-d, %Y" }}
-        </time>
-      </div>
-
-      {% if post.categories.size > 0 %}
-        {% for category in post.categories %}
-          <span class="post-category">{{ category }}</span>
-        {% endfor %}
-      {% endif %}
-
-      {% if post.excerpt %}
-        <div class="post-excerpt">
-          {{ post.excerpt | strip_html | truncatewords: 30 }}
-        </div>
-      {% endif %}
-    </li>
-    {% endfor %}
-  </ul>
-
-  <p style="text-align: center; margin-top: 2rem;">
-    <a href="{{ '/english/' | relative_url }}" class="view-all-link">View all English posts →</a>
-  </p>
-{% endif %}
