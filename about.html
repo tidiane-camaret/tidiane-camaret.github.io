@@ -4,15 +4,141 @@ title: About
 permalink: /about/
 ---
 
-# Welcome to tidiane.camaret
+<div class="publications-section">
+  <h2>Publications</h2>
+  
+  <div class="publication">
+    <h3 class="pub-title">EEG-CLIP: Learning EEG representations from natural language descriptions</h3>
+    <p class="pub-authors"><strong>Tidiane Camaret Ndir</strong>, Robin T. Schirrmeister, Tonio Ball</p>
+    <p class="pub-venue">Frontiers in Neuroscience, 2025</p>
+    <p class="pub-description">
+      A multimodal deep learning framework that aligns EEG signals with clinical text reports using contrastive learning. 
+      Achieved 85% accuracy in detecting neurological disorders and demonstrated strong zero-shot classification capabilities.
+    </p>
+    <div class="pub-links">
+      <a href="https://www.frontiersin.org/journals/neuroscience" target="_blank" class="pub-link">Paper</a>
+      <a href="https://github.com/tidiane-camaret/EEGClip" target="_blank" class="pub-link">Code</a>
+    </div>
+  </div>
 
-Here's a personal blog where I describe my programming projects and attempt to explain, with my own words, the insides of machine learning algorithms, and what really happens when they learn.
+  <div class="publication">
+    <h3 class="pub-title">Dynamic Prompt Generation for Interactive 3D Medical Image Segmentation Training</h3>
+    <p class="pub-authors"><strong>Tidiane Camaret Ndir</strong>, Alexander Pfefferle, Robin T. Schirrmeister</p>
+    <p class="pub-venue">arXiv preprint arXiv:2510.03189, 2025</p>
+    <p class="pub-description">
+      A training strategy combining dynamic volumetric prompt generation with content-aware adaptive cropping for interactive 
+      3D biomedical segmentation. Achieved 2nd place out of 257 teams in CVPR 2025 SegFM3D Competition.
+    </p>
+    <div class="pub-links">
+      <a href="https://arxiv.org/abs/2510.03189" target="_blank" class="pub-link">Paper</a>
+      <a href="https://github.com/tidiane-camaret/segfm3d_nora_team" target="_blank" class="pub-link">Code</a>
+    </div>
+  </div>
 
-I explore topics in:
-- **Machine Learning** - Deep learning, neural networks, and model architectures
-- **Computer Vision** - Image analysis, object detection, and visual understanding
-- **Natural Language Processing** - Text understanding and language models
-- **Reinforcement Learning** - Agent training and decision-making systems
+  <div class="publication">
+    <h3 class="pub-title">Inferring Behavior-Specific Context Improves Zero-Shot Generalization in Reinforcement Learning</h3>
+    <p class="pub-authors"><strong>Tidiane Camaret Ndir</strong>, André Biedenkapp, Noor Awad</p>
+    <p class="pub-venue">European Workshop on Reinforcement Learning (EWRL), 2024</p>
+    <p class="pub-description">
+      Proposes jointly learning policy and context representations for zero-shot generalization in reinforcement learning. 
+      Demonstrates improved adaptation to unseen environments without additional training.
+    </p>
+    <div class="pub-links">
+      <a href="https://arxiv.org/abs/2404.09521" target="_blank" class="pub-link">Paper</a>
+      <a href="https://github.com/tidiane-camaret/contextual_rl_zero_shot" target="_blank" class="pub-link">Code</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.publications-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.publications-section h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.5rem;
+}
+
+.publication {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.pub-title {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.pub-authors {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.3rem;
+}
+
+.pub-venue {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.pub-description {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.pub-links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pub-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.pub-link:hover {
+  background-color: #2980b9;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .publications-section {
+    padding: 1rem 0.5rem;
+  }
+  
+  .publication {
+    padding: 1rem;
+  }
+  
+  .pub-title {
+    font-size: 1.1rem;
+  }
+}
+</style>
 
 ---
 
