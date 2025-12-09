@@ -16,13 +16,13 @@ I explore topics in:
 
 ---
 
-## Recent Posts
+<h2>Recent Posts</h2>
 
-{%- assign en_posts = site.posts | where: "lang", "en" | limit: 3 -%}
+{% assign en_posts = site.posts | where: "lang", "en" %}
 
-{%- if en_posts.size > 0 -%}
+{% if en_posts.size > 0 %}
   <ul class="post-list recent-posts">
-    {%- for post in en_posts -%}
+    {% for post in en_posts limit: 3 %}
     <li>
       <a class="post-link" href="{{ post.url | relative_url }}">
         {{ post.title | escape }}
@@ -34,22 +34,22 @@ I explore topics in:
         </time>
       </div>
 
-      {%- if post.categories.size > 0 -%}
-        {%- for category in post.categories -%}
+      {% if post.categories.size > 0 %}
+        {% for category in post.categories %}
           <span class="post-category">{{ category }}</span>
-        {%- endfor -%}
-      {%- endif -%}
+        {% endfor %}
+      {% endif %}
 
-      {%- if post.excerpt -%}
+      {% if post.excerpt %}
         <div class="post-excerpt">
           {{ post.excerpt | strip_html | truncatewords: 30 }}
         </div>
-      {%- endif -%}
+      {% endif %}
     </li>
-    {%- endfor -%}
+    {% endfor %}
   </ul>
 
   <p style="text-align: center; margin-top: 2rem;">
     <a href="{{ '/english/' | relative_url }}" class="view-all-link">View all English posts →</a>
   </p>
-{%- endif -%}
+{% endif %}

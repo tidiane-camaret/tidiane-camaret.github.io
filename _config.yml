@@ -39,7 +39,7 @@ languages: ["en", "fr"]
 
 # Navigation order
 header_pages:
-  - about.markdown
+  - about.html
   - english.html
   - french.html 
 
