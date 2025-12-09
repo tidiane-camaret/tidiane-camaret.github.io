@@ -444,7 +444,33 @@ html {
 }
 
 /* ========================================
-   15. Accessibility
+   15. Recent Posts on Landing Page
+   ======================================== */
+
+.recent-posts {
+  margin-top: 2rem;
+}
+
+.view-all-link {
+  display: inline-block;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary) !important;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none !important;
+}
+
+.view-all-link:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* ========================================
+   16. Accessibility
    ======================================== */
 
 a:focus,

@@ -4,22 +4,52 @@ title: About
 permalink: /about/
 ---
 
-Heres a personal blog, where I'll describe some of my programming projects and where i'll attempt to explain, with my own words, the insides of machine learning algorithms, and what really happens when they learn.
+# Welcome to tidiane.camaret
 
+Here's a personal blog where I describe my programming projects and attempt to explain, with my own words, the insides of machine learning algorithms, and what really happens when they learn.
 
-{% comment %} 
+I explore topics in:
+- **Machine Learning** - Deep learning, neural networks, and model architectures
+- **Computer Vision** - Image analysis, object detection, and visual understanding
+- **Natural Language Processing** - Text understanding and language models
+- **Reinforcement Learning** - Agent training and decision-making systems
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+---
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+## Recent Posts
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+{%- assign en_posts = site.posts | where: "lang", "en" | limit: 3 -%}
 
+{%- if en_posts.size > 0 -%}
+  <ul class="post-list recent-posts">
+    {%- for post in en_posts -%}
+    <li>
+      <a class="post-link" href="{{ post.url | relative_url }}">
+        {{ post.title | escape }}
+      </a>
 
-[jekyll-organization]: https://github.com/jekyll
+      <div class="post-meta">
+        <time datetime="{{ post.date | date_to_xmlschema }}">
+          {{ post.date | date: "%B %-d, %Y" }}
+        </time>
+      </div>
 
-{% endcomment %}
+      {%- if post.categories.size > 0 -%}
+        {%- for category in post.categories -%}
+          <span class="post-category">{{ category }}</span>
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- if post.excerpt -%}
+        <div class="post-excerpt">
+          {{ post.excerpt | strip_html | truncatewords: 30 }}
+        </div>
+      {%- endif -%}
+    </li>
+    {%- endfor -%}
+  </ul>
+
+  <p style="text-align: center; margin-top: 2rem;">
+    <a href="{{ '/english/' | relative_url }}" class="view-all-link">View all English posts →</a>
+  </p>
+{%- endif -%}

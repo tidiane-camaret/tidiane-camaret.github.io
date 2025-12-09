@@ -1,6 +1,54 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
-layout: home
+layout: page
+title: Home
 ---
+
+# Welcome to tidiane.camaret
+
+Here's a personal blog where I describe my programming projects and attempt to explain, with my own words, the insides of machine learning algorithms, and what really happens when they learn.
+
+I explore topics in:
+- **Machine Learning** - Deep learning, neural networks, and model architectures
+- **Computer Vision** - Image analysis, object detection, and visual understanding
+- **Natural Language Processing** - Text understanding and language models
+- **Reinforcement Learning** - Agent training and decision-making systems
+
+---
+
+## Recent Posts
+
+{%- assign en_posts = site.posts | where: "lang", "en" | limit: 3 -%}
+
+{%- if en_posts.size > 0 -%}
+  <ul class="post-list recent-posts">
+    {%- for post in en_posts -%}
+    <li>
+      <a class="post-link" href="{{ post.url | relative_url }}">
+        {{ post.title | escape }}
+      </a>
+
+      <div class="post-meta">
+        <time datetime="{{ post.date | date_to_xmlschema }}">
+          {{ post.date | date: "%B %-d, %Y" }}
+        </time>
+      </div>
+
+      {%- if post.categories.size > 0 -%}
+        {%- for category in post.categories -%}
+          <span class="post-category">{{ category }}</span>
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- if post.excerpt -%}
+        <div class="post-excerpt">
+          {{ post.excerpt | strip_html | truncatewords: 30 }}
+        </div>
+      {%- endif -%}
+    </li>
+    {%- endfor -%}
+  </ul>
+
+  <p style="text-align: center; margin-top: 2rem;">
+    <a href="{{ '/english/' | relative_url }}" class="view-all-link">View all English posts →</a>
+  </p>
+{%- endif -%}

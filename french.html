@@ -1,0 +1,47 @@
+---
+layout: page
+title: Français
+permalink: /french/
+---
+
+<div class="language-section">
+  <h1>
+    <span class="section-emoji">🇫🇷</span>
+    Articles en Français
+  </h1>
+  <p class="section-description">Découvrez des articles sur l'apprentissage automatique, la vision par ordinateur, le NLP et l'apprentissage par renforcement.</p>
+
+  {%- assign fr_posts = site.posts | where: "lang", "fr" -%}
+
+  {%- if fr_posts.size > 0 -%}
+    <ul class="post-list">
+      {%- for post in fr_posts -%}
+      <li>
+        <a class="post-link" href="{{ post.url | relative_url }}">
+          {{ post.title | escape }}
+        </a>
+
+        <div class="post-meta">
+          <time datetime="{{ post.date | date_to_xmlschema }}">
+            {{ post.date | date: "%B %-d, %Y" }}
+          </time>
+        </div>
+
+        {%- if post.categories.size > 0 -%}
+          {%- for category in post.categories -%}
+            <span class="post-category">{{ category }}</span>
+          {%- endfor -%}
+        {%- endif -%}
+
+        {%- if post.excerpt -%}
+          <div class="post-excerpt">
+            {{ post.excerpt | strip_html | truncatewords: 30 }}
+          </div>
+        {%- endif -%}
+      </li>
+      {%- endfor -%}
+    </ul>
+  {%- else -%}
+    <p>Pas encore d'articles en français.</p>
+  {%- endif -%}
+</div>

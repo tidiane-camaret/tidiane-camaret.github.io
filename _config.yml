@@ -34,8 +34,14 @@ theme: minima
 plugins:
   - jekyll-feed
 
-lang: en 
-languages: ["en", "fr"] 
+lang: en
+languages: ["en", "fr"]
+
+# Navigation order
+header_pages:
+  - about.markdown
+  - english.html
+  - french.html 
 
 # Exclude from processing.
 # The following items will not be processed, by default.

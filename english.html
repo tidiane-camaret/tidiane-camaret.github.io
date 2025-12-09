@@ -1,0 +1,47 @@
+---
+layout: page
+title: English
+permalink: /english/
+---
+
+<div class="language-section">
+  <h1>
+    <span class="section-emoji">🇬🇧</span>
+    English Posts
+  </h1>
+  <p class="section-description">Explore articles about machine learning, computer vision, NLP, and reinforcement learning.</p>
+
+  {%- assign en_posts = site.posts | where: "lang", "en" -%}
+
+  {%- if en_posts.size > 0 -%}
+    <ul class="post-list">
+      {%- for post in en_posts -%}
+      <li>
+        <a class="post-link" href="{{ post.url | relative_url }}">
+          {{ post.title | escape }}
+        </a>
+
+        <div class="post-meta">
+          <time datetime="{{ post.date | date_to_xmlschema }}">
+            {{ post.date | date: "%B %-d, %Y" }}
+          </time>
+        </div>
+
+        {%- if post.categories.size > 0 -%}
+          {%- for category in post.categories -%}
+            <span class="post-category">{{ category }}</span>
+          {%- endfor -%}
+        {%- endif -%}
+
+        {%- if post.excerpt -%}
+          <div class="post-excerpt">
+            {{ post.excerpt | strip_html | truncatewords: 30 }}
+          </div>
+        {%- endif -%}
+      </li>
+      {%- endfor -%}
+    </ul>
+  {%- else -%}
+    <p>No English posts yet.</p>
+  {%- endif -%}
+</div>
