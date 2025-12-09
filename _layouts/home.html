@@ -1,0 +1,91 @@
+---
+layout: default
+---
+
+<div class="home">
+  {%- if page.title -%}
+    <h1 class="page-heading">{{ page.title }}</h1>
+  {%- endif -%}
+
+  {{ content }}
+
+  {%- if site.posts.size > 0 -%}
+    <!-- English Posts Section -->
+    <div class="language-section">
+      <h1 id="en">EN</h1>
+
+      {%- assign en_posts = site.posts | where: "lang", "en" -%}
+
+      {%- if en_posts.size > 0 -%}
+        <ul class="post-list">
+          {%- for post in en_posts -%}
+          <li>
+            <a class="post-link" href="{{ post.url | relative_url }}">
+              {{ post.title | escape }}
+            </a>
+
+            <div class="post-meta">
+              <time datetime="{{ post.date | date_to_xmlschema }}">
+                {{ post.date | date: "%B %-d, %Y" }}
+              </time>
+            </div>
+
+            {%- if post.categories.size > 0 -%}
+              {%- for category in post.categories -%}
+                <span class="post-category">{{ category }}</span>
+              {%- endfor -%}
+            {%- endif -%}
+
+            {%- if post.excerpt -%}
+              <div class="post-excerpt">
+                {{ post.excerpt | strip_html | truncatewords: 30 }}
+              </div>
+            {%- endif -%}
+          </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p>No English posts yet.</p>
+      {%- endif -%}
+    </div>
+
+    <!-- French Posts Section -->
+    <div class="language-section">
+      <h1 id="fr">FR</h1>
+
+      {%- assign fr_posts = site.posts | where: "lang", "fr" -%}
+
+      {%- if fr_posts.size > 0 -%}
+        <ul class="post-list">
+          {%- for post in fr_posts -%}
+          <li>
+            <a class="post-link" href="{{ post.url | relative_url }}">
+              {{ post.title | escape }}
+            </a>
+
+            <div class="post-meta">
+              <time datetime="{{ post.date | date_to_xmlschema }}">
+                {{ post.date | date: "%B %-d, %Y" }}
+              </time>
+            </div>
+
+            {%- if post.categories.size > 0 -%}
+              {%- for category in post.categories -%}
+                <span class="post-category">{{ category }}</span>
+              {%- endfor -%}
+            {%- endif -%}
+
+            {%- if post.excerpt -%}
+              <div class="post-excerpt">
+                {{ post.excerpt | strip_html | truncatewords: 30 }}
+              </div>
+            {%- endif -%}
+          </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p>Pas encore d'articles en français.</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>
