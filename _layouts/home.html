@@ -12,7 +12,11 @@ layout: default
   {%- if site.posts.size > 0 -%}
     <!-- English Posts Section -->
     <div class="language-section">
-      <h1 id="en">EN</h1>
+      <h1 id="en">
+        <span class="section-emoji">🇬🇧</span>
+        English Posts
+      </h1>
+      <p class="section-description">Explore articles about machine learning, computer vision, NLP, and reinforcement learning.</p>
 
       {%- assign en_posts = site.posts | where: "lang", "en" -%}
 
@@ -51,7 +55,11 @@ layout: default
 
     <!-- French Posts Section -->
     <div class="language-section">
-      <h1 id="fr">FR</h1>
+      <h1 id="fr">
+        <span class="section-emoji">🇫🇷</span>
+        Articles en Français
+      </h1>
+      <p class="section-description">Découvrez des articles sur l'apprentissage automatique, la vision par ordinateur, le NLP et l'apprentissage par renforcement.</p>
 
       {%- assign fr_posts = site.posts | where: "lang", "fr" -%}
 
