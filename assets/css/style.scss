@@ -13,24 +13,7 @@
    1. CSS Variables for Dark Mode
    ======================================== */
 
-:root {
-  /* Light mode colors (fallback) */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --bg-tertiary: #e8e8e8;
-  --text-primary: #2c3e50;
-  --text-secondary: #546e7a;
-  --text-muted: #78909c;
-  --accent-primary: #2196f3;
-  --accent-hover: #1976d2;
-  --border-color: #e0e0e0;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --code-bg: #f5f5f5;
-  --code-text: #d63384;
-}
-
-/* Dark mode as default (using data attribute for toggle) */
-[data-theme="dark"],
+/* Dark mode as default */
 :root {
   --bg-primary: #1a1a1a;
   --bg-secondary: #242424;
@@ -47,7 +30,7 @@
 }
 
 /* Light mode override */
-[data-theme="light"] {
+:root[data-theme="light"] {
   --bg-primary: #ffffff;
   --bg-secondary: #f5f5f5;
   --bg-tertiary: #e8e8e8;
@@ -67,11 +50,18 @@
    ======================================== */
 
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
   font-size: 17px;
   line-height: 1.7;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Ensure wrapper and main content respect theme */
+.page-content,
+.wrapper {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* ========================================

@@ -2,14 +2,9 @@
 (function() {
   'use strict';
 
-  // Get theme from localStorage or default to dark
-  function getTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme;
-    }
-    // Default to dark mode
-    return 'dark';
+  // Get current theme
+  function getCurrentTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'dark';
   }
 
   // Set theme
@@ -32,19 +27,16 @@
 
   // Toggle theme
   function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const currentTheme = getCurrentTheme();
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
   }
 
-  // Initialize theme on page load
-  function initTheme() {
-    const theme = getTheme();
-    setTheme(theme);
-  }
+  // Initialize toggle button (theme is already set in head)
+  function initToggleButton() {
+    const currentTheme = getCurrentTheme();
+    updateToggleButton(currentTheme);
 
-  // Setup toggle button event listener
-  function setupToggleButton() {
     const toggleButton = document.getElementById('theme-toggle');
     if (toggleButton) {
       toggleButton.addEventListener('click', toggleTheme);
@@ -53,12 +45,8 @@
 
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      initTheme();
-      setupToggleButton();
-    });
+    document.addEventListener('DOMContentLoaded', initToggleButton);
   } else {
-    initTheme();
-    setupToggleButton();
+    initToggleButton();
   }
 })();
