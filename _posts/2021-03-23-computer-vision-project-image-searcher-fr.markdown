@@ -2,7 +2,7 @@
 layout: post
 title:  "Un projet d'analyse d'images : retrouver une photo sur instagram à l'aide de sa description"
 date:   2021-03-23 11:20:25 +0100
-categories: computer_vision react python data_science
+categories: computer-vision language-modeling python react 
 lang: fr
 ref: image_searcher
 ---

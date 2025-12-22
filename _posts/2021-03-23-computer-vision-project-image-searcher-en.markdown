@@ -2,7 +2,7 @@
 layout: post
 title:  "A computer vision project: finding a photo on instagram using its description"
 date:   2021-03-23 11:20:25 +0100
-categories: computer_vision react python data_science
+categories: computer-vision language-modeling python react 
 lang: en
 ref: image_searcher
 ---

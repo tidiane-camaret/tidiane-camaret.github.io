@@ -2,7 +2,7 @@
 layout: post
 title:  "Generating automatic image descriptions : An encoder-decoder model with pytorch"
 date:   2021-04-18 11:20:25 +0100
-categories: computer_vision encoder_decoder 
+categories: computer-vision language-modeling 
 lang: en
 ref: image_searcher
 ---

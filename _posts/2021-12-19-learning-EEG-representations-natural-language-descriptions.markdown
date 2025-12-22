@@ -2,7 +2,7 @@
 layout: post
 title:  "EEG-CLIP : Learning EEG representations from natural language descriptions"
 date:   2024-03-28 11:20:25 +0100
-categories: computer vision, constrastive learning, text processing, EEG
+categories: computer-vision constrastive-learning language-modeling EEG
 lang: en
 ref: unsupervised learning
 use_math: true

@@ -2,7 +2,7 @@
 layout: post
 title:  "Traitement du langage : Comment comprendre le sens d'une question ?"
 date:   2021-07-18 11:20:25 +0100
-categories: nlp python data_science
+categories: nlp python 
 lang: fr
 ref: question_classif
 use_math: true

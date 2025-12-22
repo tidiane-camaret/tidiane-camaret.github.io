@@ -2,7 +2,7 @@
 layout: post
 title:  "Description d'image :  réseaux convolutifs et récurrents avec pytorch "
 date:   2021-04-18 11:20:25 +0100
-categories: computer_vision react python data_science
+categories: computer-vision language-modeling 
 lang: fr
 ref: image_searcher
 ---

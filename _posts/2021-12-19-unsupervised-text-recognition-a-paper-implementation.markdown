@@ -2,7 +2,7 @@
 layout: post
 title:  "Unsupervised text recognition - a paper implementation"
 date:   2021-12-20 11:20:25 +0100
-categories: computer vision, unsupervised learning, text recognition
+categories: computer-vision constrastive-learning language-modeling EEG
 lang: en
 ref: unsupervised learning
 ---

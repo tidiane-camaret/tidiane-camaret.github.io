@@ -2,7 +2,7 @@
 layout: post
 title:  "Q-Learning : Apprendre (tout seul) les règles du jeu"
 date:   2021-03-20 11:20:25 +0100
-categories: algorithmique
+categories: reinforcement-learning
 lang: fr
 ref: morpion
 ---

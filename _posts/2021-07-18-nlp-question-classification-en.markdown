@@ -2,7 +2,7 @@
 layout: post
 title:  "Natural Language Processing : How do machines make sense of questions ?"
 date:   2021-07-18 11:20:25 +0100
-categories: nlp python data_science
+categories: nlp python
 lang: en
 ref: question_classif
 use_math: true
